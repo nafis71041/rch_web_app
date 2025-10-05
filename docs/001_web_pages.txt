@@ -1,0 +1,283 @@
+login_page (
+
+    login_as_healthworker (
+        fields:
+            username (email or ID)
+            password (hidden input)
+
+        buttons:
+            login
+    )
+    
+    view_as_mother (
+        fields:
+            mobile_no (registered number)
+            otp (6-digit code sent to mobile)
+            
+        buttons:
+            send_otp
+            resend_otp (optional, shown after timeout)
+            view_details
+    )
+    
+    details:
+        error_message if credentials or mobile_no/otp are invalid
+        role detected automatically from user table (no manual selection)
+        
+    goes_to:
+        health_worker_login → dashboard_page
+        mother_login → mother_view_page
+
+)
+
+dashboard_page (
+
+    header_section (
+        fields:
+            user_name (fetched from login session)
+            user_role (asha / health_worker / supervisor)
+            phone_number
+            village_list (all villages under this user’s responsibility)
+    )
+
+    summary_section (
+        items:
+            total_pregnant_women (count of PW under their area)
+            total_eligible_couples (count of EC under their area)
+            total_children (count of children tracked)
+    )
+    
+    menu_section (
+        options:
+            home (refresh dashboard)
+            change_password
+            user_profile
+            logout
+    )
+    
+    main_navigation_boxes (
+        EC_registration (opens new EC form)
+        EC_update (search by MSID, update details)
+        PW_update (search pregnant woman by ID, update details)
+        Child_update (search child by ID, update details)
+        
+        TODO
+        ANC_tracking (shortcut to ANC records page)
+        Immunization_tracking (shortcut for pending vaccines)
+   )
+
+    goes_to:
+        EC_registration → EC_page
+        EC_update → EC_update_page
+        PW_update → PW_page
+        Child_update → Child_page
+        logout → login_page
+
+)
+
+EC_registration_page (
+
+    EC1_section (
+        fields:
+            mother_name
+            father_name
+            phone_no
+            
+            aadhaar_id
+            account_number
+            bank_name
+            branch_name
+            ifsc_code
+
+            occupation_mother
+            occupation_father
+
+            dob_mother
+            dob_father
+
+            date_of_registration
+
+            village (dropdown selection)
+            asha_name (dropdown filtered by selected village)
+            ms_id (auto-generated after registration)
+
+        actions:
+            after_submit → go_to EC2_section (first registration date == first visit date)
+    )
+
+    EC2_section (
+        display:
+            number_of_visits_till_date
+            last_visit_summary (
+                last_visit_date
+                last_visit_family_planning_method
+                last_visit_period_missed
+                last_visit_pregnancy_status
+            )
+
+        fields_for_today_visit:
+            today_visit_date
+            family_planning_method (yes/no)
+            method_used (condom / pills / copper_T / IUD / others) (if family_planning_method == yes)
+            period_missed (yes/no)
+            pregnancy (yes/no)
+
+        actions:
+            if pregnancy = yes → go_to PW_registration_page
+            else → go_to dashboard_page
+    )
+
+)
+
+PW_page (
+
+    flow_rules:
+        - PW_registration_section must be completed before accessing any other section
+        - ANC_section can be partially filled; can skip to Delivery_section any time after PW_registration
+        - Delivery_section can be accessed after PW_registration (ANC not mandatory)
+        - Infant_section accessible only after Delivery_section is completed
+        - PNC_section accessible only after Delivery_section is completed
+        - Exit allowed at any point; all entered data saved; on return, resume from last incomplete section
+
+    PW_registration_section (
+        fields:
+            pregnant_woman_id (mother_id + pregnancy_number)
+            mother_id (FK from EC)
+
+            weight
+            height
+
+            lmp_date
+            edd_date
+            blood_group
+
+            past_illnesses (select from standard list: fever, diabetes, low_iron, hypertension, etc.)
+            total_no_of_pregnancies
+            expected_delivery_place
+
+            HIV_test_result
+            HBsAg_test_result
+            Syphilis_test_result
+    )
+
+    ANC_section (
+        display:
+            initial_4_ANC_entries visible
+            if ANC 4 completed → allow ANC 5, ANC 6...
+
+        fields_per_ANC_entry:
+            anc_id (pregnant_id + ANC number)
+            anc_date
+            abortion_or_miscarriage (yes/no)
+            abortion_reason (if applicable)
+            weight
+            blood_pressure
+            urine_test_result
+            blood_test_result
+            HIV_test_result
+            HBsAg_test_result
+            Syphilis_test_result
+    )
+
+    Delivery_section (
+        fields:
+            place_of_delivery (hospital/home/other)
+            location_of_delivery (address/facility)
+            delivery_complication (yes/no + details)
+            number_of_children_born
+            live_birth_count
+            still_birth_count
+    )
+
+    Infant_section (
+        fields:
+            child_id (auto-generated)
+            mother_id (FK from PW)
+            sex
+            weight_at_birth
+            head_circumference
+            cried_after_birth (yes/no)
+            yellow_milk_given (yes/no; if no, reason)
+
+            OPV_0 (date given)
+            BCG_0 (date given)
+            HepB_0 (date given)
+    )
+
+    PNC_section (
+        fields_per_PNC_entry:
+            pnc_id (pregnant_id + PNC number)
+            pnc_date
+            complications (yes/no + details)
+            mother_weight
+            mother_death (yes/no)
+
+        note:
+            any_number_of_PNC_entries_allowed
+    )
+
+)
+
+child_page (
+
+    search_section (
+        search_by:
+            child_id (direct lookup)
+            mother_id (shows all children under that mother)
+        actions:
+            select_child → child_registration_section
+    )
+
+    child_registration_section (
+        auto_fetched_from_PW_infant:
+            child_name (optional if given at birth)
+            mother_name
+            father_name
+            sex
+            date_of_birth
+            weight_at_birth
+            place_of_delivery
+            asha_name
+            village
+
+        additional_details_to_be_filled:
+            birth_certificate_number
+            birth_registration_status (yes/no)
+            Aadhaar_enrollment_status (yes/no)
+            father_phone_number
+            address (village/locality details)
+            guardian_name (if different from parents)
+        
+        actions:
+            after_submit → immunization_section
+    )
+
+    immunization_section (
+        vaccines_up_to_18_months:
+            BCG
+            OPV_0
+            HepB_0
+
+            OPV_1, DPT_1, HepB_1
+            OPV_2, DPT_2, HepB_2
+            OPV_3, DPT_3, HepB_3
+
+            Measles_1
+            Vitamin_A_1
+
+            DPT_Booster
+            OPV_Booster
+            Measles_2
+            Vitamin_A_2_to_9 (subsequent doses)
+
+        fields_per_vaccine:
+            scheduled_date
+            actual_date_given
+            status (pending/given/missed)
+            remarks (if missed/delayed)
+
+        actions:
+            save_immunization_data
+            exit_to_dashboard
+    )
+)

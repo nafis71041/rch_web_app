@@ -1,0 +1,152 @@
+users (
+    user_id primary key auto_increment
+    username string
+    password string (hashed)
+    role string (possible values: asha, health_worker, supervisor)
+    role_ref_id foreign key -> asha.asha_id or health_worker.health_worker_id or supervisor.supervisor_id
+)
+
+supervisor (
+    supervisor_id primary key auto_increment
+    name string
+    phone_no string
+    email string
+)
+
+health_worker (
+    health_worker_id primary key auto_increment
+    name string
+    phone_no string
+    email string
+    supervisor_id foreign key -> supervisor.supervisor_id
+)
+
+village (
+    village_id primary key auto_increment
+    village_name string
+    health_worker_id foreign key -> health_worker.health_worker_id
+)
+
+asha (
+    asha_id primary key auto_increment
+    name string
+    phone_no string
+    email string
+    village_id foreign key -> village.village_id
+)
+
+eligible_couple (
+    mother_id primary key string
+    mother_name string
+    father_name string
+    phone_no string
+    aadhaar_id string
+    account_number string
+    bank_name string
+    branch_name string
+    ifsc_code string
+    occupation_mother string
+    occupation_father string
+    dob_mother date
+    dob_father date
+    date_of_registration date
+    asha_id foreign key -> asha.asha_id
+)
+
+ec_visit (
+    visit_id primary key auto_increment
+    mother_id foreign key -> eligible_couple.mother_id
+    visit_date date
+    family_planning_method yes/no
+    method_used string (possible values: condom, pills, copper_t, iud, others)
+    period_missed yes/no
+    pregnancy yes/no
+)
+
+pregnant_women (
+    pregnant_woman_id primary key string
+    mother_id foreign key -> eligible_couple.mother_id
+    weight number
+    height number
+    lmp_date date
+    edd_date date
+    blood_group string (possible values: a+, a-, b+, b-, o+, o-, ab+, ab-)
+    past_illnesses string/list (possible values: fever, diabetes, low_iron, hypertension, etc.)
+    total_no_of_pregnancies number
+    expected_delivery_place string
+)
+
+anc (
+    anc_id primary key string
+    pregnant_woman_id foreign key -> pregnant_women.pregnant_woman_id
+    anc_date date
+    abortion yes/no
+    abortion_reason string
+    weight number
+    blood_pressure string
+    urine_test_result string
+    blood_test_result string
+    hiv_test_result string (possible values: positive, negative)
+    hbsag_test_result string (possible values: positive, negative)
+    syphilis_test_result string (possible values: positive, negative)
+)
+
+delivery (
+    delivery_id primary key auto_increment
+    pregnant_woman_id foreign key -> pregnant_women.pregnant_woman_id
+    place_of_delivery string (possible values: hospital, home, other)
+    location_of_delivery string
+    delivery_complication yes/no + details
+    number_of_children_born number
+    live_birth_count number
+    still_birth_count number
+)
+
+infant (
+    child_id primary key auto_increment
+    pregnant_woman_id foreign key -> pregnant_women.pregnant_woman_id
+    sex string (possible values: male, female)
+    weight_at_birth number
+    head_circumference number
+    cried_after_birth yes/no
+    yellow_milk_given yes/no
+    yellow_milk_not_given_reason string (if applicable)
+    opv_0 date
+    bcg_0 date
+    hepb_0 date
+)
+
+pnc (
+    pnc_id primary key string
+    pregnant_woman_id foreign key -> pregnant_women.pregnant_woman_id
+    pnc_date date
+    complications yes/no + details
+    mother_weight number
+    mother_death yes/no
+)
+
+child (
+    child_id primary key auto_increment
+    mother_id foreign key -> eligible_couple.mother_id
+    child_name string
+    sex string
+    date_of_birth date
+    weight_at_birth number
+    place_of_delivery string
+    birth_certificate_number string
+    birth_registration_status yes/no
+    aadhaar_enrollment_status yes/no
+    father_phone_number string
+    address string
+    guardian_name string
+)
+
+immunization (
+    immunization_id primary key auto_increment
+    child_id foreign key -> child.child_id
+    vaccine_name string
+    scheduled_date date
+    actual_date_given date
+    status string (possible values: pending, given, missed)
+    remarks string
+)
