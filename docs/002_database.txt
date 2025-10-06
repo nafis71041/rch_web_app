@@ -1,0 +1,178 @@
+-- Users and Hierarchy
+users (
+    user_id PK AUTO_INCREMENT
+    username VARCHAR NOT NULL
+    password VARCHAR NOT NULL           -- hashed
+    role ENUM('asha','health_worker','supervisor') NOT NULL
+)
+
+supervisor (
+    supervisor_id PK AUTO_INCREMENT
+    name VARCHAR NOT NULL
+    phone_no VARCHAR NOT NULL
+    email VARCHAR NULL
+)
+
+health_worker (
+    health_worker_id PK AUTO_INCREMENT
+    name VARCHAR NOT NULL
+    phone_no VARCHAR NOT NULL
+    email VARCHAR NULL
+    supervisor_id FK -> supervisor.supervisor_id NOT NULL
+)
+
+village (
+    village_id PK AUTO_INCREMENT
+    village_name VARCHAR NOT NULL
+    health_worker_id FK -> health_worker.health_worker_id NOT NULL
+)
+
+asha (
+    asha_id PK AUTO_INCREMENT
+    name VARCHAR NOT NULL
+    phone_no VARCHAR NOT NULL
+    email VARCHAR NULL
+    village_id FK -> village.village_id NOT NULL
+)
+
+-- Eligible Couple
+eligible_couple (
+    mother_id PK VARCHAR NOT NULL
+    mother_name VARCHAR NOT NULL
+    father_name VARCHAR NOT NULL
+    phone_no VARCHAR NOT NULL
+    aadhaar_id VARCHAR NULL
+    account_number VARCHAR NULL
+    bank_name VARCHAR NULL
+    branch_name VARCHAR NULL
+    ifsc_code VARCHAR NULL
+    occupation_mother VARCHAR NULL
+    occupation_father VARCHAR NULL
+    dob_mother DATE NOT NULL
+    dob_father DATE NOT NULL
+    date_of_registration DATE NOT NULL
+    asha_id FK -> asha.asha_id NOT NULL
+)
+
+ec_visit (
+    visit_id PK AUTO_INCREMENT
+    mother_id FK -> eligible_couple.mother_id NOT NULL
+    visit_date DATE NOT NULL
+    family_planning_method BOOLEAN NOT NULL
+    method_used ENUM('condom','pills','copper_t','iud','others') NULL
+    period_missed BOOLEAN NOT NULL
+    pregnancy BOOLEAN NOT NULL
+)
+
+-- Pregnant Women
+pregnant_women (
+    pregnant_woman_id PK VARCHAR NOT NULL
+    mother_id FK -> eligible_couple.mother_id NOT NULL
+    weight DECIMAL NOT NULL
+    height DECIMAL NOT NULL
+    lmp_date DATE NOT NULL
+    edd_date DATE NOT NULL
+    blood_group ENUM('A+','A-','B+','B-','O+','O-','AB+','AB-') NOT NULL
+    past_illnesses JSON NULL
+    total_no_of_pregnancies INT NOT NULL
+    expected_delivery_place VARCHAR NOT NULL
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+)
+
+anc (
+    anc_id PK VARCHAR NOT NULL
+    pregnant_woman_id FK -> pregnant_women.pregnant_woman_id NOT NULL
+    anc_number INT NOT NULL
+    anc_date DATE NOT NULL
+    abortion BOOLEAN NOT NULL
+    abortion_reason VARCHAR NULL
+    weight DECIMAL NOT NULL
+    blood_pressure VARCHAR NOT NULL
+    urine_test_result VARCHAR NOT NULL
+    blood_test_result VARCHAR NOT NULL
+    hiv_test_result ENUM('positive','negative') NULL
+    hbsag_test_result ENUM('positive','negative') NULL
+    syphilis_test_result ENUM('positive','negative') NULL
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    UNIQUE(pregnant_woman_id, anc_number)
+)
+
+delivery (
+    delivery_id PK AUTO_INCREMENT
+    pregnant_woman_id FK -> pregnant_women.pregnant_woman_id NOT NULL
+    place_of_delivery ENUM('hospital','home','other') NOT NULL
+    location_of_delivery VARCHAR NOT NULL
+    delivery_complication BOOLEAN NOT NULL
+    delivery_complication_details VARCHAR NULL
+    number_of_children_born INT NOT NULL
+    live_birth_count INT NOT NULL
+    still_birth_count INT NOT NULL
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+)
+
+infant (
+    child_id PK AUTO_INCREMENT
+    pregnant_woman_id FK -> pregnant_women.pregnant_woman_id NOT NULL
+    sex ENUM('male','female') NOT NULL
+    weight_at_birth DECIMAL NOT NULL
+    head_circumference DECIMAL NOT NULL
+    cried_after_birth BOOLEAN NOT NULL
+    yellow_milk_given BOOLEAN NOT NULL
+    yellow_milk_not_given_reason VARCHAR NULL
+    opv_0 DATE NOT NULL
+    bcg_0 DATE NOT NULL
+    hepb_0 DATE NOT NULL
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+)
+
+pnc (
+    pnc_id PK VARCHAR NOT NULL
+    pregnant_woman_id FK -> pregnant_women.pregnant_woman_id NOT NULL
+    pnc_number INT NOT NULL
+    pnc_date DATE NOT NULL
+    complications BOOLEAN NOT NULL
+    complication_details VARCHAR NULL
+    mother_weight DECIMAL NOT NULL
+    mother_death BOOLEAN NOT NULL
+    mother_death_details VARCHAR NULL
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    UNIQUE(pregnant_woman_id, pnc_number)
+)
+
+-- Child and Immunization
+child (
+    child_id PK AUTO_INCREMENT
+    mother_id FK -> eligible_couple.mother_id NOT NULL
+    child_name VARCHAR NULL
+    sex ENUM('male','female') NOT NULL
+    date_of_birth DATE NOT NULL
+    weight_at_birth DECIMAL NOT NULL
+    place_of_delivery VARCHAR NOT NULL
+    birth_certificate_number VARCHAR NULL
+    birth_registration_status BOOLEAN NOT NULL
+    aadhaar_enrollment_status BOOLEAN NULL
+    father_phone_number VARCHAR NULL
+    address VARCHAR NOT NULL
+    guardian_name VARCHAR NULL
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+)
+
+immunization (
+    immunization_id PK AUTO_INCREMENT
+    child_id FK -> child.child_id NOT NULL
+    vaccine_name VARCHAR NOT NULL
+    scheduled_date DATE NOT NULL
+    actual_date_given DATE NOT NULL
+    status ENUM('pending','given','missed') NOT NULL
+    remarks VARCHAR NULL
+    dose_number INT NOT NULL
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    UNIQUE(child_id, vaccine_name)
+)

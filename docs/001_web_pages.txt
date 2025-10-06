@@ -1,0 +1,364 @@
+login_page ( 
+
+    login_as_healthworker (
+        fields:
+            email (registered email ID or system ID)
+            password (hidden input)
+
+        buttons:
+            login
+    )
+
+    TODO later
+    view_as_mother (
+        fields:
+            mobile_no (registered number)
+            otp (6-digit code sent to mobile)
+
+        buttons:
+            send_otp
+            resend_otp (enabled after 60s timeout)
+            view_details
+    )
+
+    details:
+        layout:
+            - login_as_healthworker and view_as_mother are displayed as two separate sections side by side
+            - users can directly interact with either section without switching views
+        error_message:
+            - banner message shown at the top if login fails (e.g., invalid credentials)
+            - inline message under field if specific input is invalid (e.g., wrong OTP format)
+        role detected automatically from user table (no manual selection)
+
+    goes_to:
+        health_worker_login → dashboard_page
+        mother_login → mother_view_page
+
+)
+
+dashboard_page (
+
+    user_info_section (
+        # This section appears at the top of the dashboard, above all other sections
+        fields:
+            user_name (fetched from login session)
+            user_role (asha / health_worker / supervisor)
+            phone_number
+            village_list (dropdown; shows all villages the user has access to)
+    )
+
+    summary_section (
+        # Displays basic statistics for the villages the user has access to
+        items:
+            total_pregnant_women (count of PW under accessible villages)
+            total_eligible_couples (count of EC under accessible villages)
+            total_children (count of children tracked under accessible villages)
+        refresh:
+            - data refreshes automatically when user enters the dashboard
+            - no graphs or percentages; just counts
+    )
+    
+    menu_section (
+        # Menu located at the upper-left corner of the dashboard
+        options:
+            home (refresh dashboard)
+            change_password → change_password_page
+            logout → login_page
+    )
+    
+    main_navigation_boxes (
+        # Smaller boxes/buttons under the summary section that navigate to other pages
+        EC_registration (opens EC_page → EC1_section)
+        EC_update (opens EC_page → EC2_section for existing MSID)
+        PW_update (search pregnant woman by ID, update details → PW_page)
+        Child_update (search child by ID, update details → Child_page)
+        
+        # TODO: additional boxes to be added later
+        ANC_tracking (shortcut to ANC records page → PW_page)
+        Immunization_tracking (shortcut for pending vaccines → Child_page)
+    )
+
+    access_rules:
+        - user sees only data for villages they have access to
+        - summary section counts respect the accessible villages
+        - role determines access breadth (asha: subset; supervisor: all)
+
+)
+
+EC_page (
+
+    section_navigation_buttons (
+        EC1_button (active initially)
+        EC2_button (disabled until EC1_section is fully completed)
+        rules:
+            - EC2 button enabled only after EC1_section is fully submitted
+            - Once EC1 is completed, user can switch between EC1 and EC2 sections
+            - Switching sections is allowed only if the current section is fully completed; partial progress not allowed
+    )
+
+    EC1_section (
+        # First registration section; after submission becomes read-only for future reference
+        fields:
+            mother_name (mandatory)
+            father_name (mandatory)
+            phone_no (mandatory)
+            
+            aadhaar_id (optional; 12 digits only)
+            account_number (optional; standard account number validation)
+            bank_name (optional)
+            branch_name (optional)
+            ifsc_code (optional)
+
+            occupation_mother (optional)
+            occupation_father (optional)
+
+            dob_mother (mandatory)
+            dob_father (mandatory)
+
+            date_of_registration (manual entry allowed; defaults to current date)
+
+            village (dropdown selection; mandatory)
+            asha_name (dropdown filtered by selected village; mandatory)
+            ms_id (auto-generated after registration; guaranteed unique)
+
+        actions:
+            after_submit → go_to EC2_section (first registration date used as first visit date)
+            # EC1_section is fixed after submission; cannot be edited
+    )
+
+    EC2_section (
+        display:
+            number_of_visits_till_date (read-only)
+            last_visit_summary (
+                last_visit_date (read-only)
+                last_visit_family_planning_method (read-only)
+                last_visit_period_missed (read-only)
+                last_visit_pregnancy_status (read-only)
+            )
+
+        fields_for_today_visit:
+            today_visit_date (defaults to date_of_registration; mandatory)
+            family_planning_method (yes/no; mandatory)
+            method_used (condom / pills / copper_T / IUD / others; visible only if family_planning_method = yes; mandatory if visible)
+            period_missed (yes/no; mandatory)
+            pregnancy (yes/no; mandatory)
+
+        actions:
+            if pregnancy = yes → go_to PW_page → PW_registration_section
+            else → go_to dashboard_page
+
+        navigation_rules:
+            - Accessing EC_page via EC_update (existing MSID) → opens directly to EC2_section
+            - EC1_section button visible but read-only for reference
+            - Section switching allowed only if current section is fully completed; partial progress not allowed
+    )
+
+)
+
+
+PW_page (
+
+    section_navigation_buttons (
+        PW_registration_button (active initially)
+        ANC_button (disabled until PW_registration_section is fully completed)
+        Delivery_button (disabled until ANC_section is fully completed)
+        Infant_button (disabled until Delivery_section is fully completed)
+        PNC_button (disabled until Delivery_section is fully completed)
+        rules:
+            - Any section button enabled only after previous section is fully completed
+            - Users can switch between completed sections freely
+            - Exit allowed after completing any section; progress saved
+    )
+
+    flow_rules:
+        - PW_registration_section must be completed before accessing any other section
+        - ANC_section can be partially filled (multiple ANC entries; any number)
+        - Delivery_section accessible only after PW_registration_section is completed
+        - Infant_section accessible only after Delivery_section is completed
+        - PNC_section accessible only after Delivery_section is completed
+
+    PW_registration_section (
+        fields:
+            pregnant_woman_id (mother_id + pregnancy_number; auto-generated; mandatory)
+            mother_id (FK from EC; mandatory)
+
+            weight (mandatory)
+            height (mandatory)
+
+            lmp_date (mandatory)
+            edd_date (mandatory)
+            blood_group (mandatory)
+
+            past_illnesses (select from standard list; optional)
+            total_no_of_pregnancies (mandatory)
+            expected_delivery_place (mandatory)
+
+            HIV_test_result (optional)
+            HBsAg_test_result (optional)
+            Syphilis_test_result (optional)
+    )
+
+    ANC_section (
+        display:
+            initial_4_ANC_entries visible
+            subsequent ANC entries allowed if previous completed
+        fields_per_ANC_entry:
+            anc_id (pregnant_id + ANC number; auto-generated)
+            anc_date (mandatory)
+            abortion_or_miscarriage (yes/no; mandatory)
+            abortion_reason (mandatory if abortion_or_miscarriage = yes; otherwise hidden)
+            weight (mandatory)
+            blood_pressure (mandatory)
+            urine_test_result (mandatory)
+            blood_test_result (mandatory)
+            HIV_test_result (optional)
+            HBsAg_test_result (optional)
+            Syphilis_test_result (optional)
+    )
+
+    Delivery_section (
+        fields:
+            place_of_delivery (hospital/home/other; mandatory)
+            location_of_delivery (address/facility; mandatory)
+            delivery_complication (yes/no; mandatory)
+            delivery_complication_details (mandatory if delivery_complication = yes; otherwise hidden)
+            number_of_children_born (mandatory)
+            live_birth_count (mandatory)
+            still_birth_count (mandatory)
+    )
+
+    Infant_section (
+        fields:
+            child_id (auto-generated; mandatory)
+            mother_id (FK from PW; mandatory)
+            sex (mandatory)
+            weight_at_birth (mandatory)
+            head_circumference (mandatory)
+            cried_after_birth (yes/no; mandatory)
+            yellow_milk_given (yes/no; mandatory)
+            yellow_milk_reason (mandatory if yellow_milk_given = no; otherwise hidden)
+
+            OPV_0 (date given; mandatory)
+            BCG_0 (date given; mandatory)
+            HepB_0 (date given; mandatory)
+    )
+
+    PNC_section (
+        fields_per_PNC_entry:
+            pnc_id (pregnant_id + PNC number; auto-generated)
+            pnc_date (mandatory)
+            complications (yes/no; mandatory)
+            complication_details (mandatory if complications = yes; otherwise hidden)
+            mother_weight (mandatory)
+            mother_death (yes/no; mandatory)
+            mother_death_details (mandatory if mother_death = yes; otherwise hidden)
+
+        note:
+            any_number_of_PNC_entries allowed
+    )
+
+)
+
+child_page (
+
+    section_navigation_buttons (
+        Search_button (active initially)
+        Registration_button (disabled until child selected from search)
+        Immunization_button (disabled until registration_section fully completed)
+        rules:
+            - Section buttons enabled only when previous section is fully completed
+            - Users can switch between completed sections freely
+            - Cannot exit or switch sections with unsaved data in current section
+    )
+
+    search_section (
+        search_by:
+            child_id (direct lookup)
+            mother_id (returns list of children under that mother)
+        actions:
+            select_child → child_registration_section
+            note:
+                - Multiple children may be listed; only one child can be selected at a time for editing/registration
+    )
+
+    child_registration_section (
+        auto_fetched_from_PW_infant:
+            child_name (optional if given at birth)
+            mother_name (mandatory)
+            father_name (mandatory)
+            sex (mandatory)
+            date_of_birth (mandatory)
+            weight_at_birth (mandatory)
+            place_of_delivery (mandatory)
+            asha_name (mandatory)
+            village (mandatory)
+
+        additional_details_to_be_filled:
+            birth_certificate_number (optional)
+            birth_registration_status (mandatory)
+            Aadhaar_enrollment_status (optional)
+            father_phone_number (optional)
+            address (mandatory)
+            guardian_name (optional)
+        
+        actions:
+            after_submit → immunization_section
+            note:
+                - Cannot proceed to next section without fully saving current registration data
+    )
+
+    immunization_section (
+        vaccines_up_to_18_months:
+            BCG
+            OPV_0
+            HepB_0
+
+            OPV_1, DPT_1, HepB_1
+            OPV_2, DPT_2, HepB_2
+            OPV_3, DPT_3, HepB_3
+
+            Measles_1
+            Vitamin_A_1
+
+            DPT_Booster
+            OPV_Booster
+            Measles_2
+            Vitamin_A_2_to_9 (subsequent doses)
+
+        fields_per_vaccine:
+            scheduled_date (mandatory)
+            actual_date_given (mandatory)
+            status (pending/given/missed; mandatory)
+            remarks (mandatory if status = missed/delayed; otherwise hidden)
+
+        rules:
+            - Each vaccine entry must be saved individually before exiting
+            - Partial immunization schedule is allowed; not all vaccines need to be filled in one session
+            - Cannot exit immunization section with unsaved data
+
+        actions:
+            save_immunization_data
+            exit_to_dashboard
+    )
+
+)
+
+change_password_page (
+
+    change_password_section (
+        fields:
+            current_password (mandatory)
+            new_password (mandatory)
+            confirm_new_password (mandatory; must match new_password)
+
+        actions:
+            after_submit → validate_passwords
+            on_success → go_to dashboard_page
+            on_failure → show_error_message (inline or banner)
+    )
+
+)
+
+mother_view_page (
+    # To be implemented later; for mother login view and record access
+)
