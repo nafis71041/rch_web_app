@@ -1,166 +1,67 @@
-health-portal/
+rch_portal/
 │
-├── frontend/                          # React application (what users see)
-│   ├── public/                        # Static files
-│   │   ├── index.html                 # Single HTML file (entry point)
-│   │   └── favicon.ico                # Website icon
-│   │
-│   ├── src/                           # Source code
-│   │   ├── components/                # Reusable UI pieces
-│   │   │   ├── common/                # Shared components used everywhere
-│   │   │   │   ├── Header.jsx         # Top bar (user_name, role, phone, logout)
-│   │   │   │   ├── LoadingSpinner.jsx # Loading animation
-│   │   │   │   ├── ErrorMessage.jsx   # Show error messages
-│   │   │   │   └── SuccessMessage.jsx # Show success messages
-│   │   │   │
-│   │   │   ├── auth/                  # Authentication components
-│   │   │   │   ├── HealthWorkerLogin.jsx  # Username + password login
-│   │   │   │   ├── MotherLogin.jsx        # Mobile + OTP login
-│   │   │   │   └── ChangePassword.jsx     # Change password form
-│   │   │   │
-│   │   │   ├── dashboard/             # Dashboard page components
-│   │   │   │   ├── HeaderSection.jsx      # Shows user_name, role, phone, villages
-│   │   │   │   ├── SummarySection.jsx     # Total PW, EC, Children counts
-│   │   │   │   ├── MenuSection.jsx        # Home, change_password, profile, logout
-│   │   │   │   └── NavigationBoxes.jsx    # EC_reg, EC_update, PW_update, Child_update
-│   │   │   │
-│   │   │   ├── ec/                    # Eligible Couple components
-│   │   │   │   ├── EC1Form.jsx            # Registration form (personal details, bank, etc.)
-│   │   │   │   ├── EC2Form.jsx            # Visit tracking form (family planning, pregnancy check)
-│   │   │   │   ├── ECUpdateSearch.jsx     # Search EC by MSID
-│   │   │   │   └── VisitHistory.jsx       # Show all past EC visits
-│   │   │   │
-│   │   │   ├── pw/                    # Pregnant Women components
-│   │   │   │   ├── PWSearch.jsx           # Search PW by ID before updating
-│   │   │   │   ├── PWRegistration.jsx     # PW registration form (weight, LMP, EDD, tests)
-│   │   │   │   ├── ANCSection.jsx         # ANC 1-4+ tracking (shows 4 initially)
-│   │   │   │   ├── ANCEntry.jsx           # Single ANC visit form
-│   │   │   │   ├── DeliverySection.jsx    # Delivery details form
-│   │   │   │   ├── InfantSection.jsx      # Infant details (auto-generates child_id)
-│   │   │   │   ├── PNCSection.jsx         # PNC visits (can add multiple)
-│   │   │   │   └── PNCEntry.jsx           # Single PNC visit form
-│   │   │   │
-│   │   │   ├── child/                 # Child components
-│   │   │   │   ├── ChildSearch.jsx        # Search by child_id OR mother_id
-│   │   │   │   ├── ChildRegistration.jsx  # Child details (auto-fetched + additional)
-│   │   │   │   ├── ImmunizationTable.jsx  # Vaccine schedule table (BCG, OPV, DPT, etc.)
-│   │   │   │   └── VaccineEntry.jsx       # Single vaccine row (scheduled, actual, status)
-│   │   │   │
-│   │   │   └── mother/                # Mother view components (OTP login users)
-│   │   │       ├── MotherProfile.jsx      # Show mother's basic details
-│   │   │       ├── PregnancyStatus.jsx    # Current pregnancy info
-│   │   │       ├── ChildrenList.jsx       # List of all children
-│   │   │       └── VaccinationStatus.jsx  # Vaccination status of children
-│   │   │
-│   │   ├── pages/                     # Full page wrappers (combine components)
-│   │   │   ├── LoginPage.jsx              # Contains HealthWorkerLogin + MotherLogin tabs
-│   │   │   ├── DashboardPage.jsx          # Full dashboard (Header + Summary + Menu + Nav)
-│   │   │   ├── ECRegistrationPage.jsx     # EC1 → EC2 flow (sequential)
-│   │   │   ├── ECUpdatePage.jsx           # Search EC → Show EC2 with history
-│   │   │   ├── PWPage.jsx                 # PW Search → PW_reg → ANC → Delivery → Infant → PNC (all sections in one page)
-│   │   │   ├── ChildPage.jsx              # Child Search → Registration → Immunization
-│   │   │   ├── MotherViewPage.jsx         # Mother's dashboard (read-only view)
-│   │   │   ├── UserProfilePage.jsx        # User profile view/edit
-│   │   │   └── NotFound.jsx               # 404 error page
-│   │   │
-│   │   ├── services/                  # API calls to backend
-│   │   │   ├── api.js                     # Axios configuration (base URL, interceptors)
-│   │   │   ├── authService.js             # login(), logout(), sendOTP(), verifyOTP()
-│   │   │   ├── ecService.js               # registerEC(), updateEC(), getECByMSID(), addECVisit()
-│   │   │   ├── pwService.js               # registerPW(), getPWById(), addANC(), addDelivery(), addInfant(), addPNC()
-│   │   │   ├── childService.js            # getChildById(), getChildrenByMotherId(), updateChild(), updateVaccine()
-│   │   │   ├── dashboardService.js        # getStats(), getVillages()
-│   │   │   └── userService.js             # getUserProfile(), changePassword()
-│   │   │
-│   │   ├── context/                   # Global state management
-│   │   │   └── AuthContext.jsx            # Stores logged-in user data (user_id, role, name, villages)
-│   │   │
-│   │   ├── utils/                     # Helper functions
-│   │   │   ├── validation.js              # validateAadhaar(), validatePhone(), validateEmail(), validateIFSC()
-│   │   │   ├── dateHelpers.js             # calculateEDD(lmp), formatDate(), getAge()
-│   │   │   ├── idGenerator.js             # generateMSID(), generatePWID(), generateANCID(), generatePNCID()
-│   │   │   └── constants.js               # ROLES, BLOOD_GROUPS, VACCINES, FAMILY_PLANNING_METHODS, etc.
-│   │   │
-│   │   ├── App.jsx                    # Main app (routing setup)
-│   │   ├── App.css                    # Global styles
-│   │   ├── main.jsx                   # Entry point (renders App to DOM)
-│   │   └── index.css                  # CSS reset/base styles
-│   │
-│   ├── .env                           # Frontend environment variables
-│   │                                  # VITE_API_URL=http://localhost:5000/api
-│   ├── .gitignore                     # node_modules/, dist/, .env
-│   ├── package.json                   # Dependencies: react, react-router-dom, axios, etc.
-│   ├── package-lock.json              # Locked versions
-│   └── vite.config.js                 # Vite configuration
+├── src/                         # Main source code of the web application
 │
-│
-├── backend/                           # Node.js + Express server
-│   ├── config/                        # Configuration files
-│   │   ├── database.js                # MySQL connection pool setup
-│   │   └── auth.js                    # JWT_SECRET, JWT_EXPIRE constants
+├── backend/                     # All backend server-side logic and services
+│   ├── api/                     # REST API endpoints (routes for each page)
+│   │   ├── auth/                # Handles login, logout, password change
+│   │   ├── ec/                  # Eligible Couple page endpoints
+│   │   ├── pw/                  # Pregnant Woman page endpoints
+│   │   ├── child/               # Child page endpoints (registration, immunization)
+│   │   ├── dashboard/           # Dashboard data endpoints (counts, summaries)
+│   │   └── mother/              # Mother-view specific APIs (to be implemented later)
 │   │
-│   ├── models/                        # Database query functions (talk to MySQL)
-│   │   ├── User.js                    # findByUsername(), create(), updatePassword()
-│   │   ├── Supervisor.js              # findById(), getAll()
-│   │   ├── HealthWorker.js            # findById(), getBySupervisor()
-│   │   ├── Village.js                 # getByHealthWorker(), getByAshaId()
-│   │   ├── Asha.js                    # findById(), getByVillage()
-│   │   ├── EligibleCouple.js          # create(), findByMSID(), update(), getAllByArea()
-│   │   ├── ECVisit.js                 # create(), getByMotherId(), getLastVisit()
-│   │   ├── PregnantWomen.js           # create(), findById(), update(), getAllByArea()
-│   │   ├── ANC.js                     # create(), getByPWId(), getANCCount()
-│   │   ├── Delivery.js                # create(), getByPWId()
-│   │   ├── Infant.js                  # create(), getByPWId()
-│   │   ├── PNC.js                     # create(), getByPWId()
-│   │   ├── Child.js                   # create(), findById(), findByMotherId(), update()
-│   │   └── Immunization.js            # create(), getByChildId(), updateVaccineStatus()
+│   ├── controllers/             # Core business logic for each route (validations, workflows)
+│   │   ├── auth_controller/
+│   │   ├── ec_controller/
+│   │   ├── pw_controller/
+│   │   ├── child_controller/
+│   │   └── dashboard_controller/
 │   │
-│   ├── routes/                        # API endpoint definitions
-│   │   ├── auth.js                    # POST /api/auth/login, /api/auth/otp-send, /api/auth/otp-verify, /api/auth/logout
-│   │   ├── ec.js                      # POST /api/ec/register, GET /api/ec/:msid, PUT /api/ec/:msid, POST /api/ec/visit
-│   │   ├── pw.js                      # POST /api/pw/register, GET /api/pw/:id, POST /api/pw/anc, POST /api/pw/delivery, POST /api/pw/infant, POST /api/pw/pnc
-│   │   ├── child.js                   # GET /api/child/:id, GET /api/child/by-mother/:motherId, PUT /api/child/:id, PUT /api/child/vaccine
-│   │   ├── dashboard.js               # GET /api/dashboard/stats (returns counts by user's area)
-│   │   └── user.js                    # GET /api/user/profile, PUT /api/user/password
+│   ├── models/                  # Database schema definitions (tables)
+│   │   ├── user_models/         # users, supervisor, health_worker, village, asha
+│   │   ├── ec_models/           # eligible_couple, ec_visit
+│   │   ├── pw_models/           # pregnant_women, anc, delivery, infant, pnc
+│   │   └── child_models/        # child, immunization
 │   │
-│   ├── middleware/                    # Functions that run before route handlers
-│   │   ├── authMiddleware.js          # verifyToken() - checks JWT validity
-│   │   ├── roleMiddleware.js          # checkRole(['asha', 'health_worker']) - authorization
-│   │   └── errorHandler.js            # Global error handling middleware
+│   ├── services/                # Reusable backend services (e.g., auth service, data access layer)
+│   │   ├── auth_service/
+│   │   ├── ec_service/
+│   │   ├── pw_service/
+│   │   ├── child_service/
+│   │   └── dashboard_service/
 │   │
-│   ├── controllers/                   # Business logic (what happens at each endpoint)
-│   │   ├── authController.js          # login(), sendOTP(), verifyOTP(), logout()
-│   │   ├── ecController.js            # registerEC(), getEC(), updateEC(), addVisit()
-│   │   ├── pwController.js            # registerPW(), getPW(), addANC(), addDelivery(), addInfant(), addPNC()
-│   │   ├── childController.js         # getChild(), getChildrenByMother(), updateChild(), updateVaccine()
-│   │   ├── dashboardController.js     # getStats() - calculates counts based on user's villages
-│   │   └── userController.js          # getProfile(), changePassword()
+│   ├── utils/                   # Utility scripts (validators, formatters, etc.)
+│   └── db/                      # Database connection, migrations, seeds
+│
+├── frontend/                    # All frontend (client-side) code
+│   ├── pages/                   # Each web page corresponds to a folder
+│   │   ├── login_page/          # Login & OTP-based mother access UI
+│   │   ├── dashboard_page/      # Main dashboard UI after login
+│   │   ├── ec_page/             # Eligible Couple registration & update pages
+│   │   ├── pw_page/             # Pregnant Woman registration & follow-up pages
+│   │   ├── child_page/          # Child registration & immunization pages
+│   │   ├── change_password_page/# Password change UI
+│   │   └── mother_view_page/    # Mother’s view (future implementation)
 │   │
-│   ├── utils/                         # Helper functions
-│   │   ├── generateId.js              # generateMSID(), generatePWID(motherId, pregnancyNum), generateANCID(), generatePNCID()
-│   │   ├── validators.js              # validateAadhaar(), validatePhone(), validateIFSC()
-│   │   ├── dateUtils.js               # calculateEDD(lmp) - adds 280 days
-│   │   ├── smsService.js              # sendOTP(phone, otp) - integration placeholder
-│   │   └── jwtHelper.js               # generateToken(user), verifyToken(token)
-│   │
-│   ├── .env                           # Backend environment variables
-│   │                                  # DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, JWT_SECRET, PORT
-│   ├── .gitignore                     # node_modules/, .env
-│   ├── server.js                      # Main server file (starts Express app)
-│   ├── package.json                   # Dependencies: express, mysql2, bcrypt, jsonwebtoken, cors, dotenv
-│   └── package-lock.json              # Locked versions
+│   ├── components/              # Shared UI components (buttons, forms, modals, navbars)
+│   ├── hooks/                   # Reusable frontend logic (API calls, auth checks, etc.)
+│   ├── context/                 # React context providers (e.g., AuthContext)
+│   ├── services/                # Frontend-side API service wrappers
+│   └── styles/                  # CSS/SCSS files organized per module
 │
+├── tests/                       # All unit, integration, and end-to-end tests
+│   ├── backend/                 # Tests for backend services and APIs
+│   ├── frontend/                # Tests for UI components and pages
+│   └── integration/             # Full-flow integration tests (e.g., EC → PW → Child)
 │
-├── database/                          # Database setup files
-│   ├── schema.sql                     # All CREATE TABLE statements (from 002_database.txt)
-│   ├── seed.sql                       # Sample test data (users, villages, asha, etc.)
-│   ├── indexes.sql                    # CREATE INDEX for performance
-│   └── README.md                      # How to set up MySQL database
+├── docs/                        # Documentation
+│   ├── db_schema/               # ER diagrams, schema explanations
+│   ├── api_docs/                # API specifications and usage examples
+│   └── architecture/            # System architecture, design decisions
 │
+├── scripts/                     # Deployment, migration, seeding, or data import scripts
 │
-├── docs/                              # important text documents
-│   ├── ...
+├── config/                      # Environment variables, database configs, etc.
 │
-├── .gitignore                         # Global ignore (node_modules/, .env, *.log)
-├── README.md                          # Project documentation
-└── package.json                       # Root scripts (start both frontend + backend)
+└── logs/                        # Application logs (for production/debugging)

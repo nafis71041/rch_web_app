@@ -1,30 +1,56 @@
-### Goal
+### 🩺 Health Data Web Portal – Minor Project
 
-Create a simple web portal as a college minor project.
-It will track health data for:
+#### 📌 Goal
 
-* Eligible couples (EC)
-* Pregnant women (PW)
+Create a simple web portal as a college minor project to track health data for:
+
+* Eligible Couples (EC)
+* Pregnant Women (PW)
 * Children up to 18 months
 
-It is currently a data entry platform and will show basic statistics and data.
-Fully online; no offline support or synchronization.
+It will act as a **data entry and basic analytics platform**, showing counts and basic stats — fully online, no offline sync.
 
-### What it does
+---
+
+### ⚙️ Tech Stack
+
+**Frontend:**
+
+* **HTML5** – structure and layout
+* **CSS3** – styling and responsive design
+* **JavaScript (ES6+)** – client-side logic
+* **React.js** – UI components, routing, state management
+
+**Backend:**
+
+* **Node.js** – runtime environment
+* **Express.js** – server-side routing and API handling
+* **MySQL** – relational database for storing structured data
+* **React.js** – (used in frontend but part of overall MERN-like stack)
+
+---
+
+### ✅ What It Does
 
 * Collects and stores data in its own database
-* Lets users add, edit, and view records
-* Enforces role-based access (ASHA, ANM, Supervisors)
-* Works as a standalone demo of how such a system might look
+* Allows users to **add, edit, and view** records
+* Enforces **role-based access** (ASHA, ANM, Supervisor)
+* Serves as a **demo system** showing how such portals can function
 
-### What it doesn’t do
+---
 
-* No integration with RCH, HMIS, or government APIs
-* Not meant to replace existing systems
-* Offline data entry not supported
-* Mother view feature not yet implemented
-* Built only for learning and demonstration
+### 🚫 What It Doesn’t Do
 
-### Who's going to use
+* No integration with government systems (RCH, HMIS, APIs)
+* Not meant as a production-grade replacement
+* No offline entry or sync support
+* “Mother view” feature not implemented yet
+* Built purely for **learning and demonstration**
 
-* ASHA, ANM, Supervisors for editing and viewing data
+---
+
+### 👤 Intended Users
+
+* ASHA Workers
+* ANMs (Health Workers)
+* Supervisors (Health Officials)
