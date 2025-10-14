@@ -1,43 +1,38 @@
-// backend/utils/authMiddleware.js
+const ApiError = require('../utils/apiError');
+const { verifyToken } = require('../utils/authServices');
 
-const jwt = require('jsonwebtoken');
-const { users } = require('../models/user_models/user'); // adjust path to your user model
-require('dotenv').config();
-
-/**
- * Middleware to verify JWT token and attach user info to request
- */
 function authenticateToken(req, res, next) {
-    const authHeader = req.headers['authorization']; // Expected: 'Bearer <token>'
-    const token = authHeader && authHeader.split(' ')[1];
+  const authHeader = req.headers.authorization;
+  if (!authHeader) {
+    return next(new ApiError(401, 'authorization header missing'));
+  }
+  if (!authHeader.startsWith('Bearer ')) {
+    return next(new ApiError(401, 'authorization header malformed'));
+  }
 
-    if (!token) {
-        return res.status(401).json({ error: 'Access token missing' });
-    }
+  const token = authHeader.split(' ')[1];
 
-    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-        if (err) return res.status(403).json({ error: 'Invalid token' });
-
-        // Attach user info to request
-        req.user = user; // { user_id, username, role }
-        next();
-    });
+  try {
+    const decoded = verifyToken(token);
+    req.user = decoded;
+    return next();
+  } catch (err) {
+    return next(err);
+  }
 }
 
-/**
- * Middleware to restrict access based on role(s)
- * @param {...string} allowedRoles - e.g., 'asha', 'health_worker', 'supervisor'
- */
 function authorizeRoles(...allowedRoles) {
-    return (req, res, next) => {
-        if (!req.user) return res.status(401).json({ error: 'User not authenticated' });
+  return (req, res, next) => {
+    if (!req.user) {
+      return next(new ApiError(401, 'user not authenticated'));
+    }
 
-        if (!allowedRoles.includes(req.user.role)) {
-            return res.status(403).json({ error: 'Access denied: insufficient permissions' });
-        }
+    if (!allowedRoles.includes(req.user.role)) {
+      return next(new ApiError(403, 'access denied: insufficient permissions'));
+    }
 
-        next();
-    };
+    next();
+  };
 }
 
 module.exports = { authenticateToken, authorizeRoles };
