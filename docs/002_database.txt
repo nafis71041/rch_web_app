@@ -3,7 +3,7 @@ users (
     user_id PK AUTO_INCREMENT
     username VARCHAR NOT NULL
     password VARCHAR NOT NULL           -- hashed
-    role ENUM('asha','health_worker','supervisor') NOT NULL
+    role ENUM('asha','health_worker','supervisor', 'admin') NOT NULL
 )
 
 supervisor (

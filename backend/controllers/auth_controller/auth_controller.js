@@ -61,7 +61,7 @@ async function changePassword(req, res, next) {
 
     const isMatch = await bcrypt.compare(current_password, user.password);
     if (!isMatch) {
-      throw new ApiError(401, 'current password incorrect');
+      throw new ApiError(400, 'current password incorrect');
     }
 
     const hashedPassword = await bcrypt.hash(new_password, 10);
