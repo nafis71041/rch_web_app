@@ -1,15 +1,17 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import './changePasswordPage.css';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
 const ChangePasswordPage = () => {
   const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     current_password: '',
     new_password: '',
     confirm_new_password: ''
   });
+
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
@@ -35,7 +37,7 @@ const ChangePasswordPage = () => {
       setLoading(true);
       const token = localStorage.getItem('token');
       const response = await axios.post(
-        'http://localhost:5000/api/auth/change-password',
+        `${ProcessingInstruction.env.REACT_APP_BACKEND_URL}/api/auth/change-password`,
         {
           current_password: formData.current_password,
           new_password: formData.new_password
@@ -51,15 +53,15 @@ const ChangePasswordPage = () => {
       // // Optional: redirect to dashboard after success
       // setTimeout(() => {
       //   navigate('/dashboard');
-      // }, 1500);
+      // }, 3000);
     } catch (err) {
       // If token is missing or invalid, redirect to login
-      if (err.response && err.response.status === 401) {
+      if (err.response?.status === 401) {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
-        navigate('/', { state: { message: 'Session expired. Please login again.' } });
+        navigate('/', { state: { message: 'Session expired. Please login again.' }, replace: true });
         return;
-      } else if (err.response && err.response.data && err.response.data.message) {
+      } else if (err.response?.data?.message) {
         setError(err.response.data.message);
       } else {
         setError('Password change failed. Please try again.');

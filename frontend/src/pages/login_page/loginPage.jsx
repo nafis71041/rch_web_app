@@ -6,15 +6,49 @@ import { useNavigate, useLocation } from 'react-router-dom';
 const LoginPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
+
   const [formData, setFormData] = useState({ username: '', password: '' });
-  const [error, setError] = useState(location.state?.message || '');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [isChecking, setIsChecking] = useState(true);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+      return setIsChecking(false);
+    }
+
+    axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/auth/verify-token`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+      .then(res => {
+        if (res.data.valid) {
+          navigate('/dashboard', { replace: true });
+        }
+      })
+      .catch(() => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+      })
+      .finally(() => {
+        setIsChecking(false);
+      });
+  }, [navigate]);
 
   useEffect(() => {
     if (location.state?.message) {
-      const timer = setTimeout(() => setError(''), 4000);
+      setError(location.state.message);
+      navigate(location.pathname, { replace: true });
+    }
+  }, [location, navigate]);
+
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => setError(''), 6000);
       return () => clearTimeout(timer);
     }
-  }, [location.state]);
+  }, [error]);
 
   const handleChange = (e) => {
     setFormData({
@@ -26,9 +60,10 @@ const LoginPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setLoading(true);
 
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/login', formData);
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/auth/login`, formData);
       const { token, user } = response.data;
 
       // Save token and user info in local storage
@@ -38,13 +73,24 @@ const LoginPage = () => {
       // Redirect to dashboard
       navigate('/dashboard');
     } catch (err) {
-      if (err.response && err.response.data && err.response.data.message) {
+      if (err.response?.data?.message) {
         setError(err.response.data.message);
       } else {
+        // console.log(err);
         setError('Login failed. Please try again.');
       }
+    } finally {
+      setLoading(false);
     }
   };
+
+  if (isChecking) {
+    return (
+      <div className="login-container">
+        <div className="login-loading">Loading...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="login-container">
@@ -77,7 +123,9 @@ const LoginPage = () => {
           />
         </div>
 
-        <button type="submit" className="login-button">Login</button>
+        <button type="submit" className="login-button" disabled={loading}>
+          {loading ? 'Logging in...' : 'Login'}
+        </button>
       </form>
     </div>
   );

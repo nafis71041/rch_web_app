@@ -6,6 +6,9 @@ const {authenticateToken, authorizeRoles} = require('../../middleware/authMiddle
 router.get('/login', (req, res) => {
   res.send('Login route works!');
 });
+router.get('/verify-token', authenticateToken, (req, res) => {
+  res.status(200).json({valid: true, user: req.user});
+});
 router.post('/login', login);
 router.post('/change-password', authenticateToken, changePassword);
 router.post('/logout', authenticateToken, logout);
