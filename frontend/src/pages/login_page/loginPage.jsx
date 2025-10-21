@@ -24,6 +24,7 @@ const LoginPage = () => {
     })
       .then(res => {
         if (res.data.valid) {
+          localStorage.setItem('user', JSON.stringify(res.data.user));
           navigate('/dashboard', { replace: true });
         }
       })
@@ -45,7 +46,7 @@ const LoginPage = () => {
 
   useEffect(() => {
     if (error) {
-      const timer = setTimeout(() => setError(''), 6000);
+      const timer = setTimeout(() => setError(''), 4000);
       return () => clearTimeout(timer);
     }
   }, [error]);

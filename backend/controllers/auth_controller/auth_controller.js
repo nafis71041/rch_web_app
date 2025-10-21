@@ -73,10 +73,6 @@ async function changePassword(req, res, next) {
   }
 }
 
-/**
- * POST /api/auth/logout
- * (Since JWT is stateless, logout is handled on client by removing token)
- */
 async function logout(req, res) {
   return res.status(200).json({ message: 'logged out successfully' });
 }

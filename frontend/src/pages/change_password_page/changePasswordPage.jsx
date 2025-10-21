@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect} from 'react';
 import './changePasswordPage.css';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -15,6 +15,20 @@ const ChangePasswordPage = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => setError(''), 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [error]);
+
+  useEffect(() => {
+    if (success) {
+      const successTimer = setTimeout(() => setSuccess(''), 4000);
+      return () => clearTimeout(successTimer);
+    }
+  }, [success]);
 
   const handleChange = (e) => {
     setFormData({
@@ -37,7 +51,7 @@ const ChangePasswordPage = () => {
       setLoading(true);
       const token = localStorage.getItem('token');
       const response = await axios.post(
-        `${ProcessingInstruction.env.REACT_APP_BACKEND_URL}/api/auth/change-password`,
+        `${process.env.REACT_APP_BACKEND_URL}/api/auth/change-password`,
         {
           current_password: formData.current_password,
           new_password: formData.new_password

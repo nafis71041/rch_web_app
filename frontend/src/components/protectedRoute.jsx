@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, Outlet } from 'react-router-dom';
 import axios from 'axios';
 
-const ProtectedRoute = ({ children }) => {
+const ProtectedRoute = ({ allowedRoles }) => {
   const [checking, setChecking] = useState(true);
   const [authenticated, setAuthenticated] = useState(false);
 
+  const user = JSON.parse(localStorage.getItem('user'));
+
   useEffect(() => {
-    const token = localStorage.getItem('token');
+  const token = localStorage.getItem('token');
 
     if (!token) {
       setChecking(false);
@@ -21,6 +23,7 @@ const ProtectedRoute = ({ children }) => {
       .then(res => {
         if (res.data.valid) {
           setAuthenticated(true);
+          localStorage.setItem('user', JSON.stringify(res.data.user));
         }
       })
       .catch(() => {
@@ -46,7 +49,11 @@ const ProtectedRoute = ({ children }) => {
     return <Navigate to="/" replace />;
   }
 
-  return children;
+  if (allowedRoles && !allowedRoles.includes(user.role)) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return <Outlet />;
 };
 
 export default ProtectedRoute;
