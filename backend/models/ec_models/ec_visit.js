@@ -9,8 +9,8 @@ const ec_visit = sequelize.define('ec_visit', {
         autoIncrement: true
     },
     mother_id: {
-        type: DataTypes.STRING(50),
-        allowNull: false,
+        type: DataTypes.INTEGER,
+        allowNull: true,
         references: {
             model: eligible_couple,
             key: 'mother_id'

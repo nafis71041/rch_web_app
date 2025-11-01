@@ -4,8 +4,10 @@ const { asha } = require('../user_models/asha');
 
 const eligible_couple = sequelize.define('eligible_couple', {
     mother_id: {
-        type: DataTypes.STRING(50),
-        primaryKey: true
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+        allowNull: false
     },
     mother_name: {
         type: DataTypes.STRING,

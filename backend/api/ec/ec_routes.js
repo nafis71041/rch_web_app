@@ -1,13 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const { authenticateToken, authorizeRoles } = require('../../utils/authMiddleware');
-const { registerEC, updateEC } = require('../../controllers/ec_controller/ec_controller');
+const { authenticateToken, authorizeRoles } = require('../../middleware/authMiddleware');
+const { getECVillages, getAshaByVillage, registerEC, getLastVisit, registerECVisit} = require('../../controllers/ec_controller/ec_controller')
 
-// Only authenticated users can access EC routes
-router.use(authenticateToken);
-
-// Only ASHA and health_worker roles can register/update EC
-router.post('/register', authorizeRoles('asha', 'health_worker'), registerEC);
-router.put('/update/:mother_id', authorizeRoles('asha', 'health_worker'), updateEC);
-
+router.get('/villages', authenticateToken, getECVillages);
+router.get('/asha-by-village/:village_id', authenticateToken, getAshaByVillage);
+router.post('/register', authenticateToken, registerEC);
+router.get('/last-visit/:mother_id', authenticateToken, getLastVisit);
+router.post('/register-visit/:mother_id', authenticateToken, registerECVisit);
 module.exports = router;

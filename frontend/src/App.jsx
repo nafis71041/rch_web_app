@@ -5,6 +5,7 @@ import ChangePasswordPage from './pages/change_password_page/changePasswordPage'
 import ProtectedRoute from './components/protectedRoute';
 import NotFoundPage from './pages/not_found_page/NotFoundPage';
 import RegisterPage from './pages/register/RegisterPage';
+import ECPage from './pages/ec_page/ECPage';
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/change-password" element={<ChangePasswordPage />} />
+          <Route path="/ec-registration/:mother_id?" element={<ECPage />} />
         </Route>
 
         <Route element={<ProtectedRoute allowedRoles={['admin']} />}>

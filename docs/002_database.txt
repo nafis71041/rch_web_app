@@ -114,7 +114,7 @@ delivery (
 )
 
 infant (
-    child_id PK AUTO_INCREMENT
+    infant_id PK AUTO_INCREMENT
     pregnant_woman_id FK -> pregnant_women.pregnant_woman_id NOT NULL
     sex ENUM('male','female') NOT NULL
     weight_at_birth DECIMAL NOT NULL
@@ -147,6 +147,7 @@ pnc (
 -- Child and Immunization
 child (
     child_id PK AUTO_INCREMENT
+    infant_id FK -> infant.infant_id UNIQUE NULL
     mother_id FK -> eligible_couple.mother_id NOT NULL
     child_name VARCHAR NULL
     sex ENUM('male','female') NOT NULL

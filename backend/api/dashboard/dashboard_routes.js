@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const { authenticateToken, authorizeRoles } = require('../../utils/authMiddleware');
-const { getSummary } = require('../../controllers/dashboard_controller/dashboard_controller');
+const {authenticateToken} = require('../../middleware/authMiddleware');
+const { getUserInfo, getSummary } = require('../../controllers/dashboard_controller/dashboardController');
 
-// Only authenticated users can access dashboard
-router.get('/summary', authenticateToken, authorizeRoles('asha', 'health_worker', 'supervisor'), getSummary);
+// all dashboard routes require authentication
+router.get('/user-info', authenticateToken, getUserInfo);
+router.get('/summary', authenticateToken, getSummary);
 
 module.exports = router;

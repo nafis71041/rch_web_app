@@ -4,7 +4,7 @@ const sequelize = require('../../db/connection');
 const { pregnant_women } = require('./pregnant_women');
 
 const infant = sequelize.define('infant', {
-    child_id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+    infant_id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     pregnant_woman_id: {
         type: DataTypes.STRING(50),
         allowNull: false,
@@ -22,5 +22,9 @@ const infant = sequelize.define('infant', {
     created_at: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
     updated_at: { type: DataTypes.DATE, defaultValue: DataTypes.NOW }
 }, { tableName: 'infant', timestamps: false });
+
+infant.belongsTo(pregnant_women, {
+    foreignKey: 'pregnant_woman_id'
+});
 
 module.exports = { infant };

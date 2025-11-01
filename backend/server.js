@@ -9,19 +9,19 @@ const app = express();
 configureMiddleware(app);
 
 const testRoutes = require('./api/test/test_routes');
-const authRoutes = require('./api/auth');
-// const ecRoutes = require('./api/ec');
+const authRoutes = require('./api/auth/');
+const ecRoutes = require('./api/ec/ec_routes');
 // const pwRoutes = require('./api/pw');
 // const childRoutes = require('./api/child');
-// const dashboardRoutes = require('./api/dashboard');
+const dashboardRoutes = require('./api/dashboard/dashboard_routes');
 // const motherRoutes = require('./api/mother');
 
 app.use('/api/test', testRoutes);
 app.use('/api/auth', authRoutes);
-// app.use('/api/ec', ecRoutes);
+app.use('/api/ec', ecRoutes);
 // app.use('/api/pw', pwRoutes);
 // app.use('/api/child', childRoutes);
-// app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 // app.use('/api/mother', motherRoutes);
 
 errorHandler(app);

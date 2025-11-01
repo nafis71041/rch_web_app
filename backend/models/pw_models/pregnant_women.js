@@ -8,8 +8,8 @@ const pregnant_women = sequelize.define('pregnant_women', {
         primaryKey: true
     },
     mother_id: {
-        type: DataTypes.STRING(50),
-        allowNull: false,
+        type: DataTypes.INTEGER,
+        allowNull: true,
         references: {
             model: eligible_couple,
             key: 'mother_id'

@@ -1,31 +1,39 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../../db/connection');
-const { health_worker } = require('./health_worker');
+const { village } = require('./village');
 
-const village = sequelize.define('village', {
-    village_id: {
+const asha = sequelize.define('asha', {
+    asha_id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true
     },
-    village_name: {
+    name: {
         type: DataTypes.STRING,
         allowNull: false
     },
-    health_worker_id: {
+    phone_no: {
+        type: DataTypes.STRING(20),
+        allowNull: false
+    },
+    email: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    village_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-            model: health_worker,
-            key: 'health_worker_id'
+            model: village,
+            key: 'village_id'
         }
     }
 }, {
-    tableName: 'village',
+    tableName: 'asha',
     timestamps: false
 });
 
 // Association
-village.belongsTo(health_worker, { foreignKey: 'health_worker_id' });
+asha.belongsTo(village, { foreignKey: 'village_id' });
 
-module.exports = { village };
+module.exports = { asha };

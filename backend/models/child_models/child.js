@@ -2,12 +2,19 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../../db/connection');
 const { eligible_couple } = require('../ec_models/eligible_couple');
+const { infant } = require('../pw_models/infant');
 
 const child = sequelize.define('child', {
     child_id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+    infant_id: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        unique: true,
+        references: { model: infant, key: 'infant_id' }
+    },
     mother_id: {
-        type: DataTypes.STRING(50),
-        allowNull: false,
+        type: DataTypes.INTEGER,
+        allowNull: true,
         references: { model: eligible_couple, key: 'mother_id' }
     },
     child_name: { type: DataTypes.STRING(255), allowNull: true },
@@ -24,5 +31,13 @@ const child = sequelize.define('child', {
     created_at: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
     updated_at: { type: DataTypes.DATE, defaultValue: DataTypes.NOW }
 }, { tableName: 'child', timestamps: false });
+
+child.belongsTo(infant, {
+    foreignKey: 'infant_id'
+});
+
+child.belongsTo(eligible_couple, {
+    foreignKey: 'mother_id'
+});
 
 module.exports = { child };
