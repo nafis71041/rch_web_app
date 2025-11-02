@@ -148,6 +148,16 @@ async function getLastVisit(req, res, next) {
             throw new ApiError(400, 'Mother ID is required');
         }
 
+        // ✅ Step 1: Check if mother exists in eligible couple table
+        const motherExists = await eligible_couple.findOne({
+            where: { mother_id },
+            attributes: ['mother_id']
+        });
+
+        if (!motherExists) {
+            throw new ApiError(404, 'No such eligible couple (mother) found');
+        }
+
         // Find the most recent visit for the mother
         const lastVisit = await ec_visit.findOne({
             where: { mother_id },
@@ -172,61 +182,61 @@ async function getLastVisit(req, res, next) {
 }
 
 async function registerECVisit(req, res, next) {
-  try {
-    const { mother_id } = req.params;
-    const {
-      visit_date,
-      family_planning_method,
-      method_used,
-      period_missed,
-      pregnancy,
-    } = req.body;
+    try {
+        const { mother_id } = req.params;
+        const {
+            visit_date,
+            family_planning_method,
+            method_used,
+            period_missed,
+            pregnancy,
+        } = req.body;
 
-    // Validate required fields
-    if (
-      !visit_date ||
-      typeof family_planning_method === 'undefined' ||
-      typeof period_missed === 'undefined' ||
-      typeof pregnancy === 'undefined'
-    ) {
-      throw new ApiError(400, 'Missing required visit fields.');
+        // Validate required fields
+        if (
+            !visit_date ||
+            typeof family_planning_method === 'undefined' ||
+            typeof period_missed === 'undefined' ||
+            typeof pregnancy === 'undefined'
+        ) {
+            throw new ApiError(400, 'Missing required visit fields.');
+        }
+
+        // Validate mother_id exists
+        const mother = await eligible_couple.findByPk(mother_id);
+        if (!mother) {
+            throw new ApiError(404, 'Mother record not found.');
+        }
+
+        // Validation: method_used required only if family_planning_method = true
+        if (family_planning_method && !method_used) {
+            throw new ApiError(400, 'Method used is required when family planning method is Yes.');
+        }
+
+        // Create new visit record
+        const newVisit = await ec_visit.create({
+            mother_id,
+            visit_date,
+            family_planning_method,
+            method_used: family_planning_method ? method_used : null,
+            period_missed,
+            pregnancy,
+        });
+
+        // Response
+        res.status(201).json({
+            message: 'EC visit recorded successfully.',
+            visit_id: newVisit.visit_id,
+        });
+    } catch (err) {
+        next(err);
     }
-
-    // Validate mother_id exists
-    const mother = await eligible_couple.findByPk(mother_id);
-    if (!mother) {
-      throw new ApiError(404, 'Mother record not found.');
-    }
-
-    // Validation: method_used required only if family_planning_method = true
-    if (family_planning_method && !method_used) {
-      throw new ApiError(400, 'Method used is required when family planning method is Yes.');
-    }
-
-    // Create new visit record
-    const newVisit = await ec_visit.create({
-      mother_id,
-      visit_date,
-      family_planning_method,
-      method_used: family_planning_method ? method_used : null,
-      period_missed,
-      pregnancy,
-    });
-
-    // Response
-    res.status(201).json({
-      message: 'EC visit recorded successfully.',
-      visit_id: newVisit.visit_id,
-    });
-  } catch (err) {
-    next(err);
-  }
 }
 
 module.exports = {
-  getECVillages,
-  getAshaByVillage,
-  registerEC,
-  registerECVisit,
-  getLastVisit,
+    getECVillages,
+    getAshaByVillage,
+    registerEC,
+    registerECVisit,
+    getLastVisit,
 };

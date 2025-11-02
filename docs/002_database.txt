@@ -37,7 +37,7 @@ asha (
 
 -- Eligible Couple
 eligible_couple (
-    mother_id PK VARCHAR NOT NULL
+    mother_id PK INT NOT NULL AUTO_INCREMENT
     mother_name VARCHAR NOT NULL
     father_name VARCHAR NOT NULL
     phone_no VARCHAR NOT NULL
@@ -66,7 +66,7 @@ ec_visit (
 
 -- Pregnant Women
 pregnant_women (
-    pregnant_woman_id PK VARCHAR NOT NULL
+    pregnant_woman_id PK INT NOT NULL AUTO_INCREMENT
     mother_id FK -> eligible_couple.mother_id NOT NULL
     weight DECIMAL NOT NULL
     height DECIMAL NOT NULL
@@ -81,7 +81,7 @@ pregnant_women (
 )
 
 anc (
-    anc_id PK VARCHAR NOT NULL
+    anc_id PK INT NOT NULL AUTO_INCREMENT
     pregnant_woman_id FK -> pregnant_women.pregnant_woman_id NOT NULL
     anc_number INT NOT NULL
     anc_date DATE NOT NULL
@@ -130,7 +130,7 @@ infant (
 )
 
 pnc (
-    pnc_id PK VARCHAR NOT NULL
+    pnc_id PK INT NOT NULL AUTO_INCREMENT
     pregnant_woman_id FK -> pregnant_women.pregnant_woman_id NOT NULL
     pnc_number INT NOT NULL
     pnc_date DATE NOT NULL

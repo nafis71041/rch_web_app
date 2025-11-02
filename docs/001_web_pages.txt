@@ -155,7 +155,6 @@ EC_page (
 
 )
 
-
 PW_page (
 
     section_navigation_buttons (
@@ -179,7 +178,7 @@ PW_page (
 
     PW_registration_section (
         fields:
-            pregnant_woman_id (mother_id + pregnancy_number; auto-generated; mandatory)
+            pregnant_woman_id (WILL BE GENERATED)
             mother_id (FK from EC; mandatory)
 
             weight (mandatory)
@@ -189,7 +188,7 @@ PW_page (
             edd_date (mandatory)
             blood_group (mandatory)
 
-            past_illnesses (select from standard list; optional)
+            ast_illnesses (select from standard list; optional)
             total_no_of_pregnancies (mandatory)
             expected_delivery_place (mandatory)
 
@@ -203,7 +202,7 @@ PW_page (
             initial_4_ANC_entries visible
             subsequent ANC entries allowed if previous completed
         fields_per_ANC_entry:
-            anc_id (pregnant_id + ANC number; auto-generated)
+            anc_id (auto-generated)
             anc_date (mandatory)
             abortion_or_miscarriage (yes/no; mandatory)
             abortion_reason (mandatory if abortion_or_miscarriage = yes; otherwise hidden)

@@ -5,7 +5,8 @@ const { eligible_couple } = require('../ec_models/eligible_couple');
 const pregnant_women = sequelize.define('pregnant_women', {
     pregnant_woman_id: {
         type: DataTypes.STRING(50),
-        primaryKey: true
+        primaryKey: true,
+        autoIncrement: true
     },
     mother_id: {
         type: DataTypes.INTEGER,

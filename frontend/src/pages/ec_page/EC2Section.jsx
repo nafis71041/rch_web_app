@@ -29,6 +29,10 @@ const EC2Section = ({ motherId }) => {
         });
         setLastVisit(res.data);
       } catch (err) {
+        if (err.response?.data?.message === 'No such eligible couple (mother) found') {
+          navigate('/ec-registration/search', { state: { searchErr: err.response?.data?.message } });
+          return;
+        }
         setError(err.response?.data?.message || "Failed to load last visit data.");
         setLastVisit(null);
       }
@@ -58,7 +62,7 @@ const EC2Section = ({ motherId }) => {
       // Redirect logic after success
 
       if (form.pregnancy) {
-        navigate("/pw");
+        navigate(`/pw/${motherId}/pregnancy/new`);
       } else {
         navigate("/dashboard");
       }
