@@ -120,9 +120,9 @@ const DashboardPage = () => {
         <button onClick={() => navigate('/ec-registration')}>EC Registration</button>
         <button onClick={() => navigate('/ec-registration/search')}>EC Update</button>
         <button onClick={() => navigate('/pw/search')}>PW Update</button>
-        <button onClick={() => navigate('/child-update')}>Child Update</button>
+        <button onClick={() => navigate('/child/search')}>Child Update</button>
         {/* <button onClick={() => navigate('/anc-tracking')}>ANC Tracking</button> */}
-        <button onClick={() => navigate('/immunization-tracking')}>Immunization Tracking</button>
+        {/* <button onClick={() => navigate('/immunization-tracking')}>Immunization Tracking</button> */}
       </div>
     </div>
   );

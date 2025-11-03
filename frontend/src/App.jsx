@@ -9,7 +9,7 @@ import ECPage from './pages/ec_page/ECPage';
 import PWSearchPage from './pages/pw_page/PWSearchPage';
 import PWPage from './pages/pw_page/PWPage';
 import ChildSearchPage from './pages/child_page/ChildSearchPage';
-import ChildPage from './pages/child_page/ChildPage';
+import ChildUpdatePage from './pages/child_page/ChildUpdatePage';
 
 function App() {
   return (
@@ -24,7 +24,7 @@ function App() {
           <Route path="/pw/search" element={<PWSearchPage />} />
           <Route path="/pw/:motherId/pregnancy/:pregnancyId" element={<PWPage />} />
           <Route path="/child/search" element={<ChildSearchPage />} />
-          <Route path="/child/update/:childId" element={<ChildPage />} />
+          <Route path="/child/update/:childId" element={<ChildUpdatePage />} />
         </Route>
 
         <Route element={<ProtectedRoute allowedRoles={['admin']} />}>

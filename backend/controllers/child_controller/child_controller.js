@@ -1,6 +1,7 @@
 const { eligible_couple } = require("../../models/ec_models/eligible_couple");
 const { pregnant_women } = require("../../models/pw_models/pregnant_women");
 const { infant } = require("../../models/pw_models/infant");
+const { immunization } = require("../../models/child_models/immunization");
 const ApiError = require("../../utils/apiError");
 
 /**
@@ -162,7 +163,185 @@ const getChildrenByMotherId = async (req, res, next) => {
   }
 };
 
+// =========================
+// GET all immunizations for a child
+// =========================
+const getImmunizationsByChildId = async (req, res, next) => {
+  const { childId } = req.params;
+
+  try {
+    if (!childId) throw new ApiError(400, "Child ID is required.");
+
+    const child = await infant.findByPk(childId);
+    if (!child) throw new ApiError(404, "Child not found in infant table.");
+
+    const records = await immunization.findAll({
+      where: { infant_id: childId },
+      order: [["scheduled_date", "ASC"]],
+      attributes: [
+        "immunization_id",
+        "infant_id",
+        "vaccine_name",
+        "scheduled_date",
+        "actual_date_given",
+        "remarks",
+        "created_at",
+        "updated_at",
+      ],
+    });
+
+    return res.status(200).json({
+      immunizations: records || [],
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// =========================
+// UPDATE or UPSERT immunizations for a child
+// =========================
+const updateImmunizationsByChildId = async (req, res, next) => {
+  const { childId } = req.params;
+  const { immunizations } = req.body;
+
+  try {
+    if (!childId) throw new ApiError(400, "Child ID is required.");
+    if (!immunizations || !Array.isArray(immunizations))
+      throw new ApiError(400, "Invalid immunization data format.");
+
+    // Define simple vaccine dependency rules
+    // For example, DPT_2 depends on DPT_1, etc.
+    const vaccineDependencies = {
+      DPT_2: "DPT_1",
+      DPT_3: "DPT_2",
+      DPT_Booster: "DPT_3",
+      HepB_1: "HepB_0",
+      HepB_2: "HepB_1",
+      HepB_3: "HepB_2",
+      Measles_2: "Measles_1",
+      OPV_1: "OPV_0",
+      OPV_2: "OPV_1",
+      OPV_3: "OPV_2",
+      OPV_Booster: "OPV_3",
+      Vitamin_A_2: "Vitamin_A_1",
+      Vitamin_A_3: "Vitamin_A_2",
+      Vitamin_A_4: "Vitamin_A_3",
+      Vitamin_A_5: "Vitamin_A_4",
+      Vitamin_A_6: "Vitamin_A_5",
+      Vitamin_A_7: "Vitamin_A_6",
+      Vitamin_A_8: "Vitamin_A_7",
+      Vitamin_A_9: "Vitamin_A_8",
+    };
+
+    // Sort immunizations by defined vaccine order
+    const vaccineOrder = [
+      "BCG",
+      "DPT_1", "DPT_2", "DPT_3", "DPT_Booster",
+      "HepB_0", "HepB_1", "HepB_2", "HepB_3",
+      "Measles_1", "Measles_2",
+      "OPV_0", "OPV_1", "OPV_2", "OPV_3", "OPV_Booster",
+      "Vitamin_A_1", "Vitamin_A_2", "Vitamin_A_3",
+      "Vitamin_A_4", "Vitamin_A_5", "Vitamin_A_6",
+      "Vitamin_A_7", "Vitamin_A_8", "Vitamin_A_9",
+    ];
+
+    immunizations.sort((a, b) => {
+      return vaccineOrder.indexOf(a.vaccine_name) - vaccineOrder.indexOf(b.vaccine_name);
+    });
+
+    const failed = [];
+    const updated = [];
+
+    for (const record of immunizations) {
+      const { vaccine_name, scheduled_date, actual_date_given, remarks } = record;
+
+      // Skip if essential info missing
+      if (!vaccine_name || !vaccineOrder.includes(vaccine_name) || !scheduled_date) {
+        failed.push({ vaccine_name, reason: "Missing or wrong vaccine_name or scheduled_date" });
+        continue;
+      }
+      
+      // Check dependency rule
+      const dependency = vaccineDependencies[vaccine_name];
+      if (dependency) {
+        const depRecord = await immunization.findOne({
+          where: { infant_id: childId, vaccine_name: dependency },
+        });
+
+        // Dependency not found or not scheduled/completed
+        if (!depRecord || !depRecord.actual_date_given) {
+          failed.push({
+            vaccine_name,
+            reason: `Dependent vaccine '${dependency}' not yet completed.`,
+          });
+          continue;
+        }
+      }
+
+      try {
+        const existing = await immunization.findOne({
+          where: { infant_id: childId, vaccine_name },
+        });
+
+        const updateData = {
+          scheduled_date,
+          actual_date_given: actual_date_given || null,
+          remarks: remarks || null,
+        };
+
+        if (existing) {
+          // If both scheduled_date and actual_date_given already exist, skip update
+          if (existing.scheduled_date && existing.actual_date_given) {
+            failed.push({
+              vaccine_name,
+              reason: "Vaccine already completed. Updates not allowed.",
+            });
+            continue;
+          }
+
+          if (existing.scheduled_date ===  updateData.scheduled_date) {
+            failed.push({
+              vaccine_name,
+              reason: "No update at all",
+            });
+            continue;
+          }
+
+          // Allow update if only scheduled_date is present (no actual date yet)
+          await existing.update(updateData);
+        } else {
+          // Create new record if it doesn't exist
+          await immunization.create({
+            infant_id: childId,
+            vaccine_name,
+            ...updateData,
+          });
+        }
+
+        updated.push(vaccine_name);
+      } catch (err) {
+        failed.push({ vaccine_name, reason: err.message });
+      }
+    }
+
+    return res.status(200).json({
+      message: "Immunization update process completed.",
+      summary: {
+        updatedCount: updated.length,
+        failedCount: failed.length,
+      },
+      updated,
+      failed,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 module.exports = {
   getChildByChildId,
   getChildrenByMotherId,
+  getImmunizationsByChildId,
+  updateImmunizationsByChildId,
 };

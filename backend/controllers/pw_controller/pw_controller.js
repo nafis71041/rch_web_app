@@ -1,6 +1,7 @@
 const { pregnant_women } = require('../../models/pw_models/pregnant_women');
 const { delivery } = require('../../models/pw_models/delivery');
 const { infant } = require('../../models/pw_models/infant');
+const { immunization } = require('../../models/child_models/immunization');
 const { eligible_couple } = require('../../models/ec_models/eligible_couple');
 const ApiError = require('../../utils/apiError');
 
@@ -416,6 +417,25 @@ const addInfantDetails = async (req, res, next) => {
       hepb_0,
     });
 
+    // 6️⃣ Create initial immunization records for OPV_0, BCG, HepB_0
+    const vaccineData = [
+      { vaccine_name: "OPV_0", date_given: opv_0 },
+      { vaccine_name: "BCG", date_given: bcg_0 },
+      { vaccine_name: "HepB_0", date_given: hepb_0 },
+    ];
+
+    for (const v of vaccineData) {
+      if (v.date_given) {
+        await immunization.create({
+          infant_id: newInfant.infant_id,
+          vaccine_name: v.vaccine_name,
+          scheduled_date: v.date_given,
+          actual_date_given: v.date_given,
+          remarks: "Given at birth",
+        });
+      }
+    }
+
     // 6️⃣ Success response
     return res.status(201).json({
       message: "Infant details saved successfully.",
@@ -427,4 +447,4 @@ const addInfantDetails = async (req, res, next) => {
   }
 };
 
-module.exports = { getPregnanciesByMotherId, getPregnancyById, registerPregnancy, addDeliveryDetails, addInfantDetails};
+module.exports = { getPregnanciesByMotherId, getPregnancyById, registerPregnancy, addDeliveryDetails, addInfantDetails };
