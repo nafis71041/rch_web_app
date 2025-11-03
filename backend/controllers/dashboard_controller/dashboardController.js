@@ -3,7 +3,7 @@ const ApiError = require('../../utils/apiError');
 const { users, supervisor, health_worker, village, asha } = require('../../models/user_models');
 const { eligible_couple } = require('../../models/ec_models/eligible_couple');
 const { pregnant_women } = require('../../models/pw_models/pregnant_women');
-const { child } = require('../../models/child_models/child');
+const { infant } = require('../../models/pw_models/infant');
 const { getAccessibleAshaIds } = require('../../utils/getAccessibleAshaIds');
 
 // -----------------------------
@@ -87,7 +87,7 @@ async function getSummary(req, res, next) {
     try {
         const { username, role } = req.user;
 
-        // use username (which equals email in linked tables)
+        // Step 1: get accessible asha IDs for the logged-in user
         const ashaIds = await getAccessibleAshaIds(role, username);
         if (!ashaIds.length) {
             return res.status(200).json({
@@ -99,26 +99,41 @@ async function getSummary(req, res, next) {
             });
         }
 
-        const totalEligibleCouples = await eligible_couple.count({
-            where: { asha_id: ashaIds }
+        // Step 2: find all eligible couples under these asha IDs
+        const eligibleCouples = await eligible_couple.findAll({
+            where: { asha_id: ashaIds },
+            attributes: ['mother_id']
         });
+        const motherIds = eligibleCouples.map(ec => ec.mother_id);
+        if (!motherIds.length) {
+            return res.status(200).json({
+                summary: {
+                    total_pregnant_women: 0,
+                    total_eligible_couples: 0,
+                    total_children: 0
+                }
+            });
+        }
 
-        const totalPregnantWomen = await pregnant_women.count({
-            include: [{
-                model: eligible_couple,
-                where: { asha_id: ashaIds },
-                attributes: []
-            }]
+        // Step 3: find all pregnant women for these eligible couples
+        const pregnantWomen = await pregnant_women.findAll({
+            where: { mother_id: motherIds },
+            attributes: ['pregnant_woman_id']
         });
+        const pregnantIds = pregnantWomen.map(pw => pw.pregnant_woman_id);
 
-        const totalChildren = await child.count({
-            include: [{
-                model: eligible_couple,
-                where: { asha_id: ashaIds },
-                attributes: []
-            }]
-        });
+        // Step 4: count everything
+        const totalEligibleCouples = motherIds.length;
+        const totalPregnantWomen = pregnantIds.length;
+        let totalChildren = 0;
 
+        if (pregnantIds.length > 0) {
+            totalChildren = await infant.count({
+                where: { pregnant_woman_id: pregnantIds }
+            });
+        }
+
+        // Step 5: return summary
         return res.status(200).json({
             summary: {
                 total_pregnant_women: totalPregnantWomen,

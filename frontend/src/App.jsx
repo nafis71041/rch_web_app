@@ -7,7 +7,9 @@ import NotFoundPage from './pages/not_found_page/NotFoundPage';
 import RegisterPage from './pages/register/RegisterPage';
 import ECPage from './pages/ec_page/ECPage';
 import PWSearchPage from './pages/pw_page/PWSearchPage';
-import PWPage from './pages/pw_page/PWPage'
+import PWPage from './pages/pw_page/PWPage';
+import ChildSearchPage from './pages/child_page/ChildSearchPage';
+import ChildPage from './pages/child_page/ChildPage';
 
 function App() {
   return (
@@ -21,6 +23,8 @@ function App() {
           <Route path="/ec-registration/:mother_id?" element={<ECPage />} />
           <Route path="/pw/search" element={<PWSearchPage />} />
           <Route path="/pw/:motherId/pregnancy/:pregnancyId" element={<PWPage />} />
+          <Route path="/child/search" element={<ChildSearchPage />} />
+          <Route path="/child/update/:childId" element={<ChildPage />} />
         </Route>
 
         <Route element={<ProtectedRoute allowedRoles={['admin']} />}>

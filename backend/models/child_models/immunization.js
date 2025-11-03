@@ -1,14 +1,14 @@
 // backend/models/child_models/immunization.js
 const { DataTypes } = require('sequelize');
 const sequelize = require('../../db/connection');
-const { child } = require('./child');
+const { infant } = require('../pw_models/infant');
 
 const immunization = sequelize.define('immunization', {
     immunization_id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-    child_id: {
+    infant_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        references: { model: child, key: 'child_id' }
+        references: { model: infant, key: 'infant_id' }
     },
     vaccine_name: { type: DataTypes.STRING(100), allowNull: false },
     scheduled_date: { type: DataTypes.DATEONLY, allowNull: false },
@@ -22,7 +22,7 @@ const immunization = sequelize.define('immunization', {
     tableName: 'immunization',
     timestamps: false,
     indexes: [
-        { unique: true, fields: ['child_id','vaccine_name'] }
+        { unique: true, fields: ['infant_id','vaccine_name'] }
     ]
 });
 
