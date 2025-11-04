@@ -1,0 +1,501 @@
+/* Child Search Page - Minimal White Inspired */
+
+.page--child-search {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: #fff;
+  color: #000;
+}
+
+/* Navigation */
+.nav--child-search {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.98);
+  border-bottom: 2px solid #000;
+  z-index: 100;
+  padding: 20px 0;
+}
+
+.nav-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-logo {
+  font-weight: 700;
+  font-size: 20px;
+  text-decoration: none;
+  color: #000;
+  letter-spacing: -0.5px;
+  position: relative;
+}
+
+.nav-logo::after {
+  content: '';
+  position: absolute;
+  right: -10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 6px;
+  height: 6px;
+  background: #000;
+}
+
+.nav-links {
+  display: flex;
+  gap: 15px;
+}
+
+.nav-btn {
+  border: 1px solid #000;
+  background: #fff;
+  padding: 8px 18px;
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.nav-btn:hover,
+.nav-btn.active {
+  background: #000;
+  color: #fff;
+}
+
+/* Section */
+.section--child-search {
+  flex-grow: 1;
+  padding: 100px 20px 60px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 50px;
+}
+
+.section-title {
+  font-size: 28px;
+  font-weight: 100;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.section-title::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 2px;
+  background: #000;
+}
+
+.section-subtitle {
+  font-size: 14px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #444;
+}
+
+/* Search Form */
+.search-form-section {
+  background: #fff;
+  border: 1px solid #000;
+  padding: 50px;
+  margin-bottom: 60px;
+}
+
+.form-group {
+  margin-bottom: 30px;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-label {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+}
+
+.form-input {
+  padding: 12px 0;
+  border: none;
+  border-bottom: 2px solid #000;
+  background: transparent;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.form-input:focus {
+  outline: none;
+  padding-left: 8px;
+}
+
+.form-actions {
+  text-align: center;
+  margin-top: 30px;
+}
+
+.btn {
+  display: inline-block;
+  padding: 14px 36px;
+  border: 2px solid #000;
+  background: #000;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn:hover {
+  background: transparent;
+  color: #000;
+  transform: translate(-3px, -3px);
+}
+
+.btn-secondary {
+  background: #fff;
+  color: #000;
+}
+
+.btn-secondary:hover {
+  background: #000;
+  color: #fff;
+}
+
+.form-error {
+  background: #000;
+  color: #fff;
+  text-align: center;
+  padding: 10px;
+  margin-top: 30px;
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+/* Results */
+.results-section {
+  border: 1px solid #000;
+  padding: 40px;
+  background: #fafafa;
+}
+
+.no-results {
+  text-align: center;
+  font-size: 14px;
+  letter-spacing: 1px;
+  color: #444;
+}
+
+.results-title {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.results-list {
+  list-style: none;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 30px;
+}
+
+.result-card {
+  border: 1px solid #000;
+  background: #fff;
+  padding: 30px;
+  transition: all 0.3s ease;
+}
+
+.result-card:hover {
+  transform: translateY(-5px);
+}
+
+.result-details p {
+  font-size: 14px;
+  margin-bottom: 6px;
+}
+
+.result-actions {
+  text-align: right;
+  margin-top: 20px;
+}
+
+/* Footer */
+.footer--child-search {
+  text-align: center;
+  border-top: 2px solid #000;
+  padding: 40px 20px;
+  background: #fff;
+}
+
+.footer--child-search p {
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+/* Child Update Page - Minimal White Inspired */
+
+.page--child-update {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  color: #000;
+}
+
+/* Navigation */
+.nav--child-update {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.98);
+  border-bottom: 2px solid #000;
+  padding: 20px 0;
+  z-index: 100;
+}
+
+.nav-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-logo {
+  font-weight: 700;
+  font-size: 20px;
+  text-decoration: none;
+  color: #000;
+  letter-spacing: -0.5px;
+  position: relative;
+}
+
+.nav-logo::after {
+  content: '';
+  position: absolute;
+  right: -10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 6px;
+  height: 6px;
+  background: #000;
+}
+
+.nav-links {
+  display: flex;
+  gap: 15px;
+}
+
+.nav-btn {
+  border: 1px solid #000;
+  background: #fff;
+  padding: 8px 18px;
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.nav-btn:hover,
+.nav-btn.active {
+  background: #000;
+  color: #fff;
+}
+
+/* Section */
+.section--child-update {
+  flex-grow: 1;
+  padding: 100px 20px 60px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 50px;
+}
+
+.section-title {
+  font-size: 28px;
+  font-weight: 100;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.section-title::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 2px;
+  background: #000;
+}
+
+.section-subtitle {
+  font-size: 14px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #444;
+}
+
+/* Immunization Table */
+.immunization-section {
+  border: 1px solid #000;
+  background: #fff;
+  padding: 40px;
+}
+
+.immunization-grid-header {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  font-weight: 600;
+  border-bottom: 2px solid #000;
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+}
+
+.immunization-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.immunization-item {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  align-items: center;
+  gap: 15px;
+  border-bottom: 1px solid #ddd;
+  padding: 10px 0;
+  transition: background 0.3s ease;
+}
+
+.immunization-item:hover {
+  background: #fafafa;
+}
+
+.vaccine-name {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.form-inline-error {
+  grid-column: 1 / 5;
+  color: crimson;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+/* Inputs */
+.form-input {
+  width: 100%;
+  padding: 8px 0;
+  border: none;
+  border-bottom: 2px solid #000;
+  background: transparent;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.form-input:focus {
+  outline: none;
+  padding-left: 8px;
+}
+
+.form-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Buttons and Errors */
+.form-actions {
+  text-align: center;
+  margin-top: 50px;
+}
+
+.btn {
+  display: inline-block;
+  padding: 14px 36px;
+  border: 2px solid #000;
+  background: #000;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn:hover {
+  background: transparent;
+  color: #000;
+  transform: translate(-3px, -3px);
+}
+
+.form-error {
+  background: #000;
+  color: #fff;
+  text-align: center;
+  padding: 10px;
+  margin-top: 20px;
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+/* Footer */
+.footer--child-update {
+  text-align: center;
+  border-top: 2px solid #000;
+  padding: 40px 20px;
+  background: #fff;
+}
+
+.footer--child-update p {
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+
+/* Responsive */
+@media (max-width: 768px) {
+  .nav-links {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .section--child-search {
+    padding: 80px 15px 40px;
+  }
+
+  .search-form-section,
+  .results-section {
+    padding: 30px 20px;
+  }
+
+  .btn {
+    width: 100%;
+  }
+}

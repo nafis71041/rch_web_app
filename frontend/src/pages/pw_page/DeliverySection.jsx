@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
-const DeliverySection = ({ pregnancyId, data = {}, readOnly = false, onComplete, onError}) => {
+const DeliverySection = ({ pregnancyId, data = {}, readOnly = false, onComplete, onError }) => {
   const [form, setForm] = useState({
     place_of_delivery: "",
     location_of_delivery: "",
@@ -14,7 +14,6 @@ const DeliverySection = ({ pregnancyId, data = {}, readOnly = false, onComplete,
     still_birth_count: "",
   });
 
-  // Load backend data into form when received
   useEffect(() => {
     if (data && Object.keys(data).length > 0) {
       setForm((prev) => ({
@@ -27,9 +26,7 @@ const DeliverySection = ({ pregnancyId, data = {}, readOnly = false, onComplete,
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    if (!readOnly) {
-      setForm((prev) => ({ ...prev, [name]: value }));
-    }
+    if (!readOnly) setForm((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
@@ -43,93 +40,122 @@ const DeliverySection = ({ pregnancyId, data = {}, readOnly = false, onComplete,
         { ...form, pregnancy_id: pregnancyId },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-
-      onComplete(res.data); // send updated data up
+      onComplete(res.data);
     } catch (err) {
-        onError(err.response?.data?.message || "Error saving delivery details:");
+      onError(err.response?.data?.message || "Error saving delivery details:");
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="delivery-section">
-      <h3>Delivery Details</h3>
+    <section className="section--pw section--delivery">
+      <div>
+        <h3 className="form-title">Delivery Details</h3>
 
-      <label>Place of Delivery</label>
-      <select
-        name="place_of_delivery"
-        value={form.place_of_delivery}
-        onChange={handleChange}
-        required
-        disabled={readOnly}
-      >
-        <option value="">Select</option>
-        <option value="hospital">hospital</option>
-        <option value="home">home</option>
-        <option value="other">other</option>
-      </select>
+        <form onSubmit={handleSubmit} className="form--pw">
+          <div className="form-grid--pw">
 
-      <label>Location of Delivery</label>
-      <input
-        name="location_of_delivery"
-        value={form.location_of_delivery}
-        onChange={handleChange}
-        required
-        disabled={readOnly}
-      />
+            <div className="form-group">
+              <label className="form-label">Place of Delivery</label>
+              <select
+                className="form-select"
+                name="place_of_delivery"
+                value={form.place_of_delivery}
+                onChange={handleChange}
+                required
+                disabled={readOnly}
+              >
+                <option value="">Select</option>
+                <option value="hospital">Hospital</option>
+                <option value="home">Home</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
 
-      <label>Delivery Complication</label>
-      <select
-        name="delivery_complication"
-        value={form.delivery_complication}
-        onChange={handleChange}
-        disabled={readOnly}
-      >
-        <option value="no">No</option>
-        <option value="yes">Yes</option>
-      </select>
+            <div className="form-group">
+              <label className="form-label">Location of Delivery</label>
+              <input
+                className="form-input"
+                name="location_of_delivery"
+                value={form.location_of_delivery}
+                onChange={handleChange}
+                required
+                disabled={readOnly}
+              />
+            </div>
 
-      {form.delivery_complication === "yes" && (
-        <>
-          <label>Complication Details</label>
-          <input
-            name="delivery_complication_details"
-            value={form.delivery_complication_details}
-            onChange={handleChange}
-            required
-            disabled={readOnly}
-          />
-        </>
-      )}
+            <div className="form-group">
+              <label className="form-label">Delivery Complication</label>
+              <select
+                className="form-select"
+                name="delivery_complication"
+                value={form.delivery_complication}
+                onChange={handleChange}
+                disabled={readOnly}
+              >
+                <option value="no">No</option>
+                <option value="yes">Yes</option>
+              </select>
+            </div>
 
-      <label>Number of Children Born</label>
-      <input
-        name="number_of_children_born"
-        value={form.number_of_children_born}
-        onChange={handleChange}
-        required
-        disabled={readOnly}
-      />
+            {form.delivery_complication === "yes" && (
+              <div className="form-group">
+                <label className="form-label">Complication Details</label>
+                <input
+                  className="form-input"
+                  name="delivery_complication_details"
+                  value={form.delivery_complication_details}
+                  onChange={handleChange}
+                  required
+                  disabled={readOnly}
+                />
+              </div>
+            )}
 
-      <label>Live Birth Count</label>
-      <input
-        name="live_birth_count"
-        value={form.live_birth_count}
-        onChange={handleChange}
-        required
-        disabled={readOnly}
-      />
+            <div className="form-group">
+              <label className="form-label">Number of Children Born</label>
+              <input
+                className="form-input"
+                name="number_of_children_born"
+                value={form.number_of_children_born}
+                onChange={handleChange}
+                required
+                disabled={readOnly}
+              />
+            </div>
 
-      <label>Still Birth Count</label>
-      <input
-        name="still_birth_count"
-        value={form.still_birth_count}
-        onChange={handleChange}
-        required
-        disabled={readOnly}
-      />
+            <div className="form-group">
+              <label className="form-label">Live Birth Count</label>
+              <input
+                className="form-input"
+                name="live_birth_count"
+                value={form.live_birth_count}
+                onChange={handleChange}
+                required
+                disabled={readOnly}
+              />
+            </div>
 
-      {!readOnly && <button type="submit">Save & Continue</button>}
-    </form>
+            <div className="form-group">
+              <label className="form-label">Still Birth Count</label>
+              <input
+                className="form-input"
+                name="still_birth_count"
+                value={form.still_birth_count}
+                onChange={handleChange}
+                required
+                disabled={readOnly}
+              />
+            </div>
+          </div>
+
+          {!readOnly && (
+            <div className="form-actions">
+              <button type="submit" className="btn">Save & Continue</button>
+            </div>
+          )}
+        </form>
+      </div>
+    </section>
   );
 };
 

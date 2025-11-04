@@ -1,7 +1,7 @@
-import { useState, useEffect} from 'react';
-import './changePasswordPage.css';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import './changePasswordPage.css';
 
 const ChangePasswordPage = () => {
   const navigate = useNavigate();
@@ -64,12 +64,7 @@ const ChangePasswordPage = () => {
       setSuccess(response.data.message);
       setFormData({ current_password: '', new_password: '', confirm_new_password: '' });
 
-      // // Optional: redirect to dashboard after success
-      // setTimeout(() => {
-      //   navigate('/dashboard');
-      // }, 3000);
     } catch (err) {
-      // If token is missing or invalid, redirect to login
       if (err.response?.status === 401) {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
@@ -90,59 +85,80 @@ const ChangePasswordPage = () => {
   };
 
   return (
-    <div className="change-password-container">
-      <form className="change-password-form" onSubmit={handleSubmit}>
-        <h2>Change Password</h2>
-
-        {error && <div className="error-banner">{error}</div>}
-        {success && <div className="success-banner">{success}</div>}
-
-        <div className="form-group">
-          <label htmlFor="current_password">Current Password</label>
-          <input
-            type="password"
-            name="current_password"
-            value={formData.current_password}
-            onChange={handleChange}
-            placeholder="Enter current password"
-            required
-          />
+    <main className="page--changepw">
+      <nav className="nav--pw">
+        <div className="nav-container">
+          <a href="/" className="nav-logo">MySite</a>
+          <div className="nav-links">
+            <button className="nav-btn" onClick={() => navigate('/dashboard')}>Dashboard</button>
+            <button className="nav-btn active">Change Password</button>
+          </div>
         </div>
+      </nav>
 
-        <div className="form-group">
-          <label htmlFor="new_password">New Password</label>
-          <input
-            type="password"
-            name="new_password"
-            value={formData.new_password}
-            onChange={handleChange}
-            placeholder="Enter new password"
-            required
-          />
-        </div>
+      <section className="section--changepw">
+        <div className="form-container--pw">
+          <h2 className="form-title">Change Password</h2>
 
-        <div className="form-group">
-          <label htmlFor="confirm_new_password">Confirm New Password</label>
-          <input
-            type="password"
-            name="confirm_new_password"
-            value={formData.confirm_new_password}
-            onChange={handleChange}
-            placeholder="Confirm new password"
-            required
-          />
-        </div>
+          {error && <div className="form-error">{error}</div>}
+          {success && <div className="form-success">{success}</div>}
 
-        <div className="button-group">
-          <button type="submit" className="change-password-button" disabled={loading}>
-            {loading ? 'Changing...' : 'Change Password'}
-          </button>
-          <button type="button" className="cancel-button" onClick={handleCancel}>
-            Cancel
-          </button>
+          <form className="form--pw" onSubmit={handleSubmit}>
+            <div className="form-group">
+              <label className="form-label" htmlFor="current_password">Current Password</label>
+              <input
+                type="password"
+                className="form-input"
+                name="current_password"
+                value={formData.current_password}
+                onChange={handleChange}
+                placeholder="Enter current password"
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label" htmlFor="new_password">New Password</label>
+              <input
+                type="password"
+                className="form-input"
+                name="new_password"
+                value={formData.new_password}
+                onChange={handleChange}
+                placeholder="Enter new password"
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label" htmlFor="confirm_new_password">Confirm New Password</label>
+              <input
+                type="password"
+                className="form-input"
+                name="confirm_new_password"
+                value={formData.confirm_new_password}
+                onChange={handleChange}
+                placeholder="Confirm new password"
+                required
+              />
+            </div>
+
+            <div className="form-actions">
+              <button type="submit" className="btn" disabled={loading}>
+                {loading ? 'Changing...' : 'Change Password'}
+              </button>
+              <button type="button" className="btn btn--secondary" onClick={handleCancel}>
+                Cancel
+              </button>
+            </div>
+          </form>
         </div>
-      </form>
-    </div>
+      </section>
+
+      <footer className="footer--pw">
+        <p>© 2025 MySite. All rights reserved.</p>
+      </footer>
+    </main>
   );
 };
 

@@ -1,3 +1,4 @@
+// DashboardPage.jsx
 import React, { useEffect, useState } from 'react';
 import './dashboardPage.css';
 import axios from 'axios';
@@ -33,7 +34,6 @@ const DashboardPage = () => {
         setUserInfo(userRes.data.user);
         setSummary(summaryRes.data.summary);
       } catch (err) {
-        // Use server-provided error message, no hardcoded fallback
         setError(err.response?.data?.message || 'Error fetching dashboard data.');
       } finally {
         setLoading(false);
@@ -65,65 +65,82 @@ const DashboardPage = () => {
 
   if (loading) {
     return (
-      <div className="dashboard-container">
-        <div className="dashboard-loading">Loading dashboard...</div>
+      <div className="page page--loading">
+        <p className="loading-text">Loading dashboard...</p>
       </div>
     );
   }
 
   return (
-    <div className="dashboard-container">
-      {/* Always visible menu bar */}
-      <div className="menu-bar">
-        <button onClick={() => window.location.reload()}>Home</button>
-        <button onClick={() => navigate('/change-password')}>Change Password</button>
-        <button onClick={handleLogout}>Logout</button>
-      </div>
-
-      {/* Error banner stays visible within the dashboard */}
-      {error && <div className="error-banner">{error}</div>}
-
-      {/* User Info Section */}
-      {userInfo && (
-        <div className="user-info">
-          <p><strong>Name:</strong> {userInfo.user_name}</p>
-          <p><strong>Role:</strong> {userInfo.user_role}</p>
-          <p><strong>Phone:</strong> {userInfo.phone_number}</p>
-
-          <label><strong>Village:</strong></label>
-          <select>
-            {userInfo.village_list?.map((village, i) => (
-              <option key={i} value={village}>{village}</option>
-            ))}
-          </select>
+    <div className="page page--dashboard">
+      <nav className="nav">
+        <div className="nav-container">
+          <a href="/" className="nav-logo">Dashboard</a>
+          <ul className="nav-links">
+            <li><button className="nav-btn" onClick={() => window.location.reload()}>Home</button></li>
+            <li><button className="nav-btn" onClick={() => navigate('/change-password')}>Change Password</button></li>
+            <li><button className="nav-btn" onClick={handleLogout}>Logout</button></li>
+          </ul>
         </div>
-      )}
+      </nav>
 
-      {/* Summary Section */}
-      <div className="summary-section">
-        <div className="summary-box">
-          <h3>Pregnant Women</h3>
-          <p>{summary.total_pregnant_women}</p>
-        </div>
-        <div className="summary-box">
-          <h3>Eligible Couples</h3>
-          <p>{summary.total_eligible_couples}</p>
-        </div>
-        <div className="summary-box">
-          <h3>Children</h3>
-          <p>{summary.total_children}</p>
-        </div>
-      </div>
+      <main className="section section--dashboard">
+        {error && <div className="banner banner--error">{error}</div>}
 
-      {/* Main Navigation Boxes */}
-      <div className="main-navigation">
-        <button onClick={() => navigate('/ec-registration')}>EC Registration</button>
-        <button onClick={() => navigate('/ec-registration/search')}>EC Update</button>
-        <button onClick={() => navigate('/pw/search')}>PW Update</button>
-        <button onClick={() => navigate('/child/search')}>Child Update</button>
-        {/* <button onClick={() => navigate('/anc-tracking')}>ANC Tracking</button> */}
-        {/* <button onClick={() => navigate('/immunization-tracking')}>Immunization Tracking</button> */}
-      </div>
+        {userInfo && (
+          <section className="user-section">
+            <div className="user-card user-card--wide">
+              <h2 className="user-title">User Information</h2>
+              <div className="user-details">
+                <p><strong>Name:</strong> {userInfo.user_name}</p>
+                <p><strong>Role:</strong> {userInfo.user_role}</p>
+                <p><strong>Phone:</strong> {userInfo.phone_number}</p>
+
+                <label className="label"><strong>Village:</strong></label>
+                <select className="dropdown">
+                  {userInfo.village_list?.map((village, i) => (
+                    <option key={i} value={village}>{village}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </section>
+        )}
+
+        <section className="summary-section">
+          <div className="summary-header">
+            <h2 className="summary-title">Summary</h2>
+          </div>
+          <div className="summary-grid">
+            <div className="summary-box">
+              <h3 className="summary-label">Pregnant Women</h3>
+              <p className="summary-value">{summary.total_pregnant_women}</p>
+            </div>
+            <div className="summary-box">
+              <h3 className="summary-label">Eligible Couples</h3>
+              <p className="summary-value">{summary.total_eligible_couples}</p>
+            </div>
+            <div className="summary-box">
+              <h3 className="summary-label">Children</h3>
+              <p className="summary-value">{summary.total_children}</p>
+            </div>
+          </div>
+        </section>
+
+        <section className="navigation-section">
+          <h2 className="navigation-title">Actions</h2>
+          <div className="navigation-grid">
+            <button className="nav-action-btn" onClick={() => navigate('/ec-registration')}>EC Registration</button>
+            <button className="nav-action-btn" onClick={() => navigate('/ec-registration/search')}>EC Update</button>
+            <button className="nav-action-btn" onClick={() => navigate('/pw/search')}>PW Update</button>
+            <button className="nav-action-btn" onClick={() => navigate('/child/search')}>Child Immunization Update</button>
+          </div>
+        </section>
+      </main>
+
+      <footer className="footer footer--dashboard">
+        <p>© 2025 Matrima</p>
+      </footer>
     </div>
   );
 };

@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import axios from "axios";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
+import './child.css';
 
 const vaccineList = [
   "BCG",
@@ -32,6 +33,8 @@ const vaccineList = [
 
 const ChildUpdatePage = () => {
   const { childId } = useParams();
+  const navigate = useNavigate();
+
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -78,7 +81,8 @@ const ChildUpdatePage = () => {
               scheduled_date: found.scheduled_date || "",
               actual_date_given: found.actual_date_given || "",
               remarks: found.remarks || "",
-              locked: found.scheduled_date && found.actual_date_given ? true : false,
+              locked:
+                found.scheduled_date && found.actual_date_given ? true : false,
             };
           }
           return {
@@ -140,27 +144,7 @@ const ChildUpdatePage = () => {
       const newData = prev.map((r) => ({ ...r }));
       newData[index][field] = value;
 
-      if (field === "scheduled_date") {
-        // If scheduled date cleared, clear its own actual date and remarks too
-        if (value === "" || value === null) {
-          newData[index].actual_date_given = "";
-          newData[index].remarks = "";
-
-          // Also clear all dependent vaccines (future ones in same group)
-          const { group } = parseVaccine(newData[index].vaccine_name);
-          const groupArr = groups[group] || [];
-          const pos = groupArr.findIndex((g) => g.idx === index);
-          for (let i = pos + 1; i < groupArr.length; i++) {
-            const idx = groupArr[i].idx;
-            newData[idx].scheduled_date = "";
-            newData[idx].actual_date_given = "";
-            newData[idx].remarks = "";
-          }
-        }
-      }
-
-      if (field === "actual_date_given" && (value === "" || value === null)) {
-        // If actual date cleared, clear dependent vaccines as well
+      if (field === "scheduled_date" && (value === "" || value === null)) {
         const { group } = parseVaccine(newData[index].vaccine_name);
         const groupArr = groups[group] || [];
         const pos = groupArr.findIndex((g) => g.idx === index);
@@ -172,13 +156,22 @@ const ChildUpdatePage = () => {
         }
       }
 
-
+      if (field === "actual_date_given" && (value === "" || value === null)) {
+        const { group } = parseVaccine(newData[index].vaccine_name);
+        const groupArr = groups[group] || [];
+        const pos = groupArr.findIndex((g) => g.idx === index);
+        for (let i = pos + 1; i < groupArr.length; i++) {
+          const idx = groupArr[i].idx;
+          newData[idx].scheduled_date = "";
+          newData[idx].actual_date_given = "";
+          newData[idx].remarks = "";
+        }
+      }
 
       return newData;
     });
     clearFieldError(index, field);
   };
-
 
   const validateBeforeSave = () => {
     let valid = true;
@@ -193,7 +186,6 @@ const ChildUpdatePage = () => {
 
     return valid;
   };
-
 
   const handleSave = async () => {
     if (!validateBeforeSave()) return;
@@ -221,14 +213,9 @@ const ChildUpdatePage = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      console.log(payload);
-
-      // After save, mark completed records as locked
       setRecords((prev) =>
         prev.map((r) =>
-          r.scheduled_date && r.actual_date_given
-            ? { ...r, locked: true }
-            : r
+          r.scheduled_date && r.actual_date_given ? { ...r, locked: true } : r
         )
       );
 
@@ -243,73 +230,120 @@ const ChildUpdatePage = () => {
 
   const renderError = (i, field) =>
     inlineErrors[i]?.[field] ? (
-      <div style={{ color: "crimson", fontSize: "0.8rem" }}>
-        {inlineErrors[i][field]}
-      </div>
+      <div className="form-inline-error">{inlineErrors[i][field]}</div>
     ) : null;
 
-  if (loading) return <p>Loading...</p>;
+  const handleCancel = () => {
+        if (
+            window.confirm(
+                "Are you sure you want to cancel and return to the dashboard? Unsaved data will be lost."
+            )
+        ) {
+            navigate("/dashboard");
+        }
+    };
+
+  if (loading) return <p className="loading-text">Loading...</p>;
 
   return (
-    <div>
-      <h2>Child Immunization Update</h2>
-      <p>Child ID: {childId}</p>
-
-      <div>
-        <div style={{ fontWeight: "bold" }}>
-          <div>Vaccine | Scheduled Date | Actual Date Given | Remarks</div>
+    <div className="page page--child-update">
+      <nav className="nav nav--child-update">
+        <div className="nav-container">
+          <a href="/" className="nav-logo">
+            Immunization
+          </a>
+          <div className="nav-links">
+            <button className="nav-btn" onClick={() => navigate("/child/search")}>
+              Search
+            </button>
+            <button className="nav-btn active" onClick={() => navigate(`/child/update/${childId}`)}>
+              Update
+            </button>
+            <button className="nav-btn nav-btn--cancel" onClick={handleCancel}>
+              Cancel
+            </button>
+          </div>
         </div>
+      </nav>
 
-        {records.map((rec, i) => {
-          const editable = isEditable(i);
-          const readonly = rec.locked;
-          const disabled = !editable && !readonly;
+      <main className="section section--child-update">
+        <header className="section-header">
+          <h2 className="section-title">Child Immunization Update</h2>
+          <p className="section-subtitle">Child ID: {childId}</p>
+        </header>
 
-          return (
-            <div key={rec.vaccine_name}>
-              <span>{rec.vaccine_name}</span>
-
-              <input
-                type="date"
-                value={rec.scheduled_date || ""}
-                onChange={(e) => handleChange(i, "scheduled_date", e.target.value)}
-                readOnly={readonly}
-                disabled={disabled}
-              />
-              
-              <input
-                type="date"
-                value={rec.actual_date_given || ""}
-                onChange={(e) =>
-                  handleChange(i, "actual_date_given", e.target.value)
-                }
-                readOnly={readonly}
-                disabled={disabled}
-              />
-
-              <input
-                type="text"
-                value={rec.remarks || ""}
-                onChange={(e) => handleChange(i, "remarks", e.target.value)}
-                readOnly={readonly}
-                disabled={disabled}
-                placeholder="Remarks"
-              />
-
-              {renderError(i, "scheduled_date")}
-              {renderError(i, "actual_date_given")}
-              {renderError(i, "remarks")}
+        <section className="immunization-section">
+          <div className="immunization-header">
+            <div className="immunization-grid-header">
+              <span>Vaccine</span>
+              <span>Scheduled Date</span>
+              <span>Actual Date Given</span>
+              <span>Remarks</span>
             </div>
-          );
-        })}
-      </div>
+          </div>
 
-      <div>
-        <button onClick={handleSave} disabled={saving}>
-          {saving ? "Saving..." : "Update Details"}
-        </button>
-        {saveError && <div style={{ color: "crimson" }}>{saveError}</div>}
-      </div>
+          <div className="immunization-list">
+            {records.map((rec, i) => {
+              const editable = isEditable(i);
+              const readonly = rec.locked;
+              const disabled = !editable && !readonly;
+
+              return (
+                <div key={rec.vaccine_name} className="immunization-item">
+                  <span className="vaccine-name">{rec.vaccine_name}</span>
+
+                  <input
+                    type="date"
+                    className="form-input"
+                    value={rec.scheduled_date || ""}
+                    onChange={(e) =>
+                      handleChange(i, "scheduled_date", e.target.value)
+                    }
+                    readOnly={readonly}
+                    disabled={disabled}
+                  />
+
+                  <input
+                    type="date"
+                    className="form-input"
+                    value={rec.actual_date_given || ""}
+                    onChange={(e) =>
+                      handleChange(i, "actual_date_given", e.target.value)
+                    }
+                    readOnly={readonly}
+                    disabled={disabled}
+                  />
+
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={rec.remarks || ""}
+                    onChange={(e) => handleChange(i, "remarks", e.target.value)}
+                    readOnly={readonly}
+                    disabled={disabled}
+                    placeholder="Remarks"
+                  />
+
+                  {renderError(i, "scheduled_date")}
+                  {renderError(i, "actual_date_given")}
+                  {renderError(i, "remarks")}
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
+        <section className="form-actions">
+          <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
+            {saving ? "Saving..." : "Update Details"}
+          </button>
+          {saveError && <div className="form-error">{saveError}</div>}
+        </section>
+      </main>
+
+      <footer className="footer footer--child-update">
+        <p>© 2025 Matrima</p>
+      </footer>
     </div>
   );
 };

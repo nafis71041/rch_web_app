@@ -15,22 +15,23 @@ const EC2Section = ({ motherId }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const token = localStorage.getItem("token"); // assumed JWT stored on login
-
+  const token = localStorage.getItem("token");
   const navigate = useNavigate();
 
-  // Fetch last visit details
   useEffect(() => {
     if (!motherId) return;
     const fetchLastVisit = async () => {
       try {
-        const res = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/ec/last-visit/${motherId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await axios.get(
+          `${process.env.REACT_APP_BACKEND_URL}/api/ec/last-visit/${motherId}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
         setLastVisit(res.data);
       } catch (err) {
-        if (err.response?.data?.message === 'No such eligible couple (mother) found') {
-          navigate('/ec-registration/search', { state: { searchErr: err.response?.data?.message } });
+        if (err.response?.data?.message === "No such eligible couple (mother) found") {
+          navigate("/ec-registration/search", {
+            state: { searchErr: err.response?.data?.message },
+          });
           return;
         }
         setError(err.response?.data?.message || "Failed to load last visit data.");
@@ -38,12 +39,12 @@ const EC2Section = ({ motherId }) => {
       }
     };
     fetchLastVisit();
-  }, [motherId, token]);
+  }, [motherId, token, navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     let parsedValue = value;
-    if (name === "family_planning_method" || name === "period_missed" || name === "pregnancy") {
+    if (["family_planning_method", "period_missed", "pregnancy"].includes(name)) {
       parsedValue = value === "yes";
     }
     setForm((prev) => ({ ...prev, [name]: parsedValue }));
@@ -55,21 +56,20 @@ const EC2Section = ({ motherId }) => {
     setError("");
 
     try {
-      const res = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/ec/register-visit/${motherId}`, form, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      // Redirect logic after success
+      await axios.post(
+        `${process.env.REACT_APP_BACKEND_URL}/api/ec/register-visit/${motherId}`,
+        form,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
 
       if (form.pregnancy) {
         navigate(`/pw/${motherId}/pregnancy/new`);
       } else {
         navigate("/dashboard");
       }
-
     } catch (err) {
-      if (err.response && err.response.data && err.response.data.message) {
-        setError(err.response.data.message); // show backend custom error
+      if (err.response?.data?.message) {
+        setError(err.response.data.message);
       } else {
         setError("Network or server error while saving visit.");
       }
@@ -79,86 +79,103 @@ const EC2Section = ({ motherId }) => {
   };
 
   return (
-    <div className="ec2-section">
-      <h2>Eligible Couple Follow-Up (EC2)</h2>
+    <section className="ec-section ec-section--ec2">
+        <h2 className="form-title">Eligible Couple Follow-Up (EC2)</h2>
 
-      {error && <p className="error">{error}</p>}
+        {error && <div className="form-error">{error}</div>}
 
-      {lastVisit && (
-        <div className="last-visit-summary">
-          <h4>Last Visit Summary</h4>
-          <p>Date: {lastVisit.visit_date}</p>
-          <p>Family Planning: {lastVisit.family_planning_method ? "Yes" : "No"}</p>
-          <p>Method Used: {lastVisit.method_used || "—"}</p>
-          <p>Period Missed: {lastVisit.period_missed ? "Yes" : "No"}</p>
-          <p>Pregnancy: {lastVisit.pregnancy ? "Yes" : "No"}</p>
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit}>
-        <label>Visit Date*</label>
-        <input
-          type="date"
-          name="visit_date"
-          required
-          value={form.visit_date}
-          onChange={handleChange}
-        />
-
-        <label>Using Family Planning Method?*</label>
-        <select
-          name="family_planning_method"
-          value={form.family_planning_method ? "yes" : "no"}
-          onChange={handleChange}
-        >
-          <option value="no">No</option>
-          <option value="yes">Yes</option>
-        </select>
-
-        {form.family_planning_method && (
-          <>
-            <label>Method Used*</label>
-            <select
-              name="method_used"
-              required
-              value={form.method_used}
-              onChange={handleChange}
-            >
-              <option value="">Select</option>
-              <option value="condom">Condom</option>
-              <option value="pills">Pills</option>
-              <option value="copper_t">Copper T</option>
-              <option value="iud">IUD</option>
-              <option value="others">Others</option>
-            </select>
-          </>
+        {lastVisit && (
+          <div className="last-visit">
+            <h3 className="last-visit__title">Last Visit Summary</h3>
+            <div className="last-visit__content">
+              <p><strong>Date:</strong> {lastVisit.visit_date}</p>
+              <p><strong>Family Planning:</strong> {lastVisit.family_planning_method ? "Yes" : "No"}</p>
+              <p><strong>Method Used:</strong> {lastVisit.method_used || "—"}</p>
+              <p><strong>Period Missed:</strong> {lastVisit.period_missed ? "Yes" : "No"}</p>
+              <p><strong>Pregnancy:</strong> {lastVisit.pregnancy ? "Yes" : "No"}</p>
+            </div>
+          </div>
         )}
 
-        <label>Period Missed?*</label>
-        <select
-          name="period_missed"
-          value={form.period_missed ? "yes" : "no"}
-          onChange={handleChange}
-        >
-          <option value="no">No</option>
-          <option value="yes">Yes</option>
-        </select>
+        <form className="form-grid--ec2" onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label className="form-label">Visit Date*</label>
+            <input
+              type="date"
+              name="visit_date"
+              required
+              className="form-input"
+              value={form.visit_date}
+              onChange={handleChange}
+            />
+          </div>
 
-        <label>Pregnant?*</label>
-        <select
-          name="pregnancy"
-          value={form.pregnancy ? "yes" : "no"}
-          onChange={handleChange}
-        >
-          <option value="no">No</option>
-          <option value="yes">Yes</option>
-        </select>
+          <div className="form-group">
+            <label className="form-label">Using Family Planning Method?*</label>
+            <select
+              name="family_planning_method"
+              className="form-select"
+              value={form.family_planning_method ? "yes" : "no"}
+              onChange={handleChange}
+            >
+              <option value="no">No</option>
+              <option value="yes">Yes</option>
+            </select>
+          </div>
 
-        <button type="submit" disabled={loading}>
-          {loading ? "Saving..." : "Submit Visit"}
-        </button>
-      </form>
-    </div>
+          {form.family_planning_method && (
+            <div className="form-group">
+              <label className="form-label">Method Used*</label>
+              <select
+                name="method_used"
+                required
+                className="form-select"
+                value={form.method_used}
+                onChange={handleChange}
+              >
+                <option value="">Select</option>
+                <option value="condom">Condom</option>
+                <option value="pills">Pills</option>
+                <option value="copper_t">Copper T</option>
+                <option value="iud">IUD</option>
+                <option value="others">Others</option>
+              </select>
+            </div>
+          )}
+
+          <div className="form-group">
+            <label className="form-label">Period Missed?*</label>
+            <select
+              name="period_missed"
+              className="form-select"
+              value={form.period_missed ? "yes" : "no"}
+              onChange={handleChange}
+            >
+              <option value="no">No</option>
+              <option value="yes">Yes</option>
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Pregnant?*</label>
+            <select
+              name="pregnancy"
+              className="form-select"
+              value={form.pregnancy ? "yes" : "no"}
+              onChange={handleChange}
+            >
+              <option value="no">No</option>
+              <option value="yes">Yes</option>
+            </select>
+          </div>
+
+          <div className="form-actions">
+            <button type="submit" className="btn" disabled={loading}>
+              {loading ? "Saving..." : "Submit Visit"}
+            </button>
+          </div>
+        </form>
+    </section>
   );
 };
 

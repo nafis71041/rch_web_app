@@ -7,6 +7,8 @@ import axios from "axios";
 import PWRegistrationSection from "./PWRegistrationSection";
 import DeliverySection from "./DeliverySection";
 import InfantSection from "./InfantSection";
+import "./PWPage.css";
+
 
 const PWPage = () => {
   const { motherId, pregnancyId } = useParams();
@@ -22,7 +24,6 @@ const PWPage = () => {
 
     const initPage = async () => {
       try {
-        // CASE 1: new pregnancy registration
         if (pregnancyId === "new") {
           const res = await axios.get(
             `${process.env.REACT_APP_BACKEND_URL}/api/pw/pregnancies/${motherId}`,
@@ -43,7 +44,6 @@ const PWPage = () => {
           return;
         }
 
-        // CASE 2: existing pregnancy
         const res = await axios.get(
           `${process.env.REACT_APP_BACKEND_URL}/api/pw/pregnancy/${pregnancyId}`,
           { headers: { Authorization: `Bearer ${token}` } }
@@ -58,12 +58,10 @@ const PWPage = () => {
         if (data.infant_completed) completed.push("infant");
         setCompletedSections(completed);
 
-        // decide which section to show initially
         if (!data.registration_completed) setActiveSection("registration");
         else if (!data.delivery_completed) setActiveSection("delivery");
         else if (!data.infant_completed) setActiveSection("infant");
         else setActiveSection("registration");
-
       } catch (err) {
         setError(err.response?.data?.message || "Could not load pregnancy data");
       } finally {
@@ -79,93 +77,125 @@ const PWPage = () => {
       prev.includes(sectionName) ? prev : [...prev, sectionName]
     );
 
-    console.log(updatedData);
-
     if (updatedData) setPregnancyData((prev) => ({ ...prev, ...updatedData }));
 
-    // Auto-advance to next section
     if (sectionName === "registration") {
-      // If backend returned a new pregnancy_id, update the URL
       if (updatedData?.pregnant_woman_id) {
         navigate(`/pw/${motherId}/pregnancy/${updatedData.pregnant_woman_id}`);
       } else {
         setActiveSection("delivery");
       }
-
     } else if (sectionName === "delivery") {
       setActiveSection("infant");
     }
+
   };
 
-  if (loading) return <p>Loading...</p>;
+  const handleCancel = () => {
+    if (
+      window.confirm(
+        "Are you sure you want to cancel and return to the dashboard? Unsaved data will be lost."
+      )
+    ) {
+      navigate("/dashboard");
+    }
+  };
+
+  if (loading) return <p className="page-loading">Loading...</p>;
 
   return (
-    <div className="pw-page">
-      <h2>Pregnant Woman Details</h2>
-      <p>
-        Mother ID: <strong>{motherId}</strong>{" "}
-        {pregnancyId !== "new" && <>| Pregnancy ID: <strong>{pregnancyId}</strong></>}
-      </p>
+    <div className="page--pw">
+      <nav className="nav--pw">
+        <div className="nav-container">
+          <a href="/" className="nav-logo">PW Module</a>
+          <div className="nav-links">
+            <button
+              className={`nav-btn ${activeSection === "registration" ? "active" : ""}`}
+              onClick={() => setActiveSection("registration")}
+              disabled={activeSection === "loading"}
+            >
+              Registration
+            </button>
+            <button
+              className={`nav-btn ${activeSection === "delivery" ? "active" : ""}`}
+              onClick={() => setActiveSection("delivery")}
+              disabled={!completedSections.includes("registration")}
+            >
+              Delivery
+            </button>
+            <button
+              className={`nav-btn ${activeSection === "infant" ? "active" : ""}`}
+              onClick={() => setActiveSection("infant")}
+              disabled={!completedSections.includes("delivery")}
+            >
+              Infant
+            </button>
+            {/* <button
+              className={`nav-btn ${activeSection === "infant" ? "active" : ""}`}
+              onClick={() => setActiveSection("infant")}
+              disabled={!completedSections.includes("delivery")}
+            >
+              Cancel
+            </button> */}
+            <button className="nav-btn nav-btn--cancel" onClick={handleCancel}>
+              Cancel
+            </button>
+          </div>
+        </div>
+      </nav>
 
-      {/* Inline error display */}
-      {error && <p className="inline-error">{error}</p>}
+      <main className="section--pw">
+        <header className="section-header">
+          <h2 className="section-title">Pregnant Woman Details</h2>
+          <p className="section-subtitle">
+            Mother ID: <strong>{motherId}</strong>{" "}
+            {pregnancyId !== "new" && (
+              <>
+                | Pregnancy ID: <strong>{pregnancyId}</strong>
+              </>
+            )}
+          </p>
+        </header>
 
-      {/* Section Navigation */}
-      <div className="section-navigation">
-        <button
-          onClick={() => setActiveSection("registration")}
-          disabled={activeSection === "loading"}
-        >
-          Registration
-        </button>
+        {error && <p className="form-error">{error}</p>}
 
-        <button
-          disabled={!completedSections.includes("registration")}
-          onClick={() => setActiveSection("delivery")}
-        >
-          Delivery
-        </button>
+        <section>
+          {activeSection === "registration" && (
+            <PWRegistrationSection
+              motherId={motherId}
+              pregnancyId={pregnancyId}
+              data={pregnancyData?.registration_data || {}}
+              readOnly={completedSections.includes("registration") && pregnancyId !== "new"}
+              onComplete={(data) => handleSectionComplete("registration", data)}
+              onError={(msg) => setError(msg)}
+            />
+          )}
 
-        <button
-          disabled={!completedSections.includes("delivery")}
-          onClick={() => setActiveSection("infant")}
-        >
-          Infant
-        </button>
-      </div>
+          {activeSection === "delivery" && (
+            <DeliverySection
+              pregnancyId={pregnancyId}
+              data={pregnancyData?.delivery_data || {}}
+              readOnly={completedSections.includes("delivery")}
+              onComplete={(data) => handleSectionComplete("delivery", data)}
+              onError={(msg) => setError(msg)}
+            />
+          )}
 
-      {/* Render only the selected section */}
-      {activeSection === "registration" && (
-        <PWRegistrationSection
-          motherId={motherId}
-          pregnancyId={pregnancyId}
-          data={pregnancyData?.registration_data || {}}
-          readOnly={completedSections.includes("registration") && pregnancyId !== "new"}
-          onComplete={(data) => handleSectionComplete("registration", data)}
-          onError={(msg) => setError(msg)}
-        />
-      )}
+          {activeSection === "infant" && (
+            <InfantSection
+              pregnancyId={pregnancyId}
+              data={pregnancyData?.infant_data || {}}
+              readOnly={completedSections.includes("infant")}
+              onComplete={(data) => handleSectionComplete("infant", data)}
+              onError={(msg) => setError(msg)}
+            />
+          )}
+        </section>
+      </main>
 
-      {activeSection === "delivery" && (
-        <DeliverySection
-          pregnancyId={pregnancyId}
-          data={pregnancyData?.delivery_data || {}}
-          readOnly={completedSections.includes("delivery")}
-          onComplete={(data) => handleSectionComplete("delivery", data)}
-          onError={(msg) => setError(msg)}
-        />
-      )}
-
-      {activeSection === "infant" && (
-        <InfantSection
-          pregnancyId={pregnancyId}
-          data={pregnancyData?.infant_data || {}}
-          readOnly={completedSections.includes("infant")}
-          onComplete={(data) => handleSectionComplete("infant", data)}
-          onError={(msg) => setError(msg)}
-        />
-      )}
-
+      <footer className="footer--pw">
+        <p>© 2025 Matrima</p>
+      </footer>
     </div>
   );
 };

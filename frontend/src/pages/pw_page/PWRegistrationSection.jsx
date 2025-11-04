@@ -3,7 +3,14 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
-const PWRegistrationSection = ({ motherId, pregnancyId, data = {}, readOnly = false, onComplete, onError }) => {
+const PWRegistrationSection = ({
+  motherId,
+  pregnancyId,
+  data = {},
+  readOnly = false,
+  onComplete,
+  onError,
+}) => {
   const [form, setForm] = useState({
     mother_id: motherId || "",
     weight: "",
@@ -43,101 +50,137 @@ const PWRegistrationSection = ({ motherId, pregnancyId, data = {}, readOnly = fa
         { ...form },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-
-      // Backend should return updated registration info
       onComplete(res.data);
     } catch (err) {
-        onError(err.response?.data?.message || "Failed to save registration data");
+      onError(err.response?.data?.message || "Failed to save registration data");
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="pw-registration-section">
-      <h3>Pregnant Woman Registration</h3>
+    <section className="section--pw-registration">
+      <div>
+        <h3 className="form-title">Pregnant Woman Registration</h3>
 
-      <label>Mother ID</label>
-      <input
-        name="mother_id"
-        value={form.mother_id}
-        onChange={handleChange}
-        required
-        disabled
-      />
+        <form onSubmit={handleSubmit} className="form--pw">
+          <div className="form-grid--pw">
+            <div className="form-group">
+              <label className="form-label">Mother ID</label>
+              <input
+                className="form-input"
+                name="mother_id"
+                value={form.mother_id}
+                onChange={handleChange}
+                required
+                disabled
+              />
+            </div>
 
-      <label>Weight</label>
-      <input
-        name="weight"
-        value={form.weight}
-        onChange={handleChange}
-        required
-        disabled={readOnly}
-      />
+            <div className="form-group">
+              <label className="form-label">Weight</label>
+              <input
+                className="form-input"
+                name="weight"
+                value={form.weight}
+                onChange={handleChange}
+                required
+                disabled={readOnly}
+              />
+            </div>
 
-      <label>Height</label>
-      <input
-        name="height"
-        value={form.height}
-        onChange={handleChange}
-        required
-        disabled={readOnly}
-      />
+            <div className="form-group">
+              <label className="form-label">Height</label>
+              <input
+                className="form-input"
+                name="height"
+                value={form.height}
+                onChange={handleChange}
+                required
+                disabled={readOnly}
+              />
+            </div>
 
-      <label>LMP Date</label>
-      <input
-        type="date"
-        name="lmp_date"
-        value={form.lmp_date || ""}
-        onChange={handleChange}
-        required
-        disabled={readOnly}
-      />
+            <div className="form-group">
+              <label className="form-label">LMP Date</label>
+              <input
+                className="form-input"
+                type="date"
+                name="lmp_date"
+                value={form.lmp_date || ""}
+                onChange={handleChange}
+                required
+                disabled={readOnly}
+              />
+            </div>
 
-      <label>EDD Date</label>
-      <input
-        type="date"
-        name="edd_date"
-        value={form.edd_date || ""}
-        onChange={handleChange}
-        required
-        disabled={readOnly}
-      />
+            <div className="form-group">
+              <label className="form-label">EDD Date</label>
+              <input
+                className="form-input"
+                type="date"
+                name="edd_date"
+                value={form.edd_date || ""}
+                onChange={handleChange}
+                required
+                disabled={readOnly}
+              />
+            </div>
 
-      <label>Blood Group</label>
-      <select
-        name="blood_group"
-        value={form.blood_group}
-        onChange={handleChange}
-        required
-        disabled={readOnly}
-      >
-        <option value="">Select</option>
-        {["A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"].map((g) => (
-          <option key={g} value={g}>
-            {g}
-          </option>
-        ))}
-      </select>
+            <div className="form-group">
+              <label className="form-label">Blood Group</label>
+              <select
+                className="form-select"
+                name="blood_group"
+                value={form.blood_group}
+                onChange={handleChange}
+                required
+                disabled={readOnly}
+              >
+                <option value="">Select</option>
+                {["A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"].map(
+                  (g) => (
+                    <option key={g} value={g}>
+                      {g}
+                    </option>
+                  )
+                )}
+              </select>
+            </div>
 
-      <label>Total Pregnancies</label>
-      <input
-        name="total_no_of_pregnancies"
-        value={form.total_no_of_pregnancies}
-        onChange={handleChange}
-        required
-        disabled={readOnly}
-      />
+            <div className="form-group">
+              <label className="form-label">Total Pregnancies</label>
+              <input
+                className="form-input"
+                name="total_no_of_pregnancies"
+                value={form.total_no_of_pregnancies}
+                onChange={handleChange}
+                required
+                disabled={readOnly}
+              />
+            </div>
 
-      <label>Expected Delivery Place</label>
-      <input
-        name="expected_delivery_place"
-        value={form.expected_delivery_place}
-        onChange={handleChange}
-        required
-        disabled={readOnly}
-      />
+            <div className="form-group">
+              <label className="form-label">Expected Delivery Place</label>
+              <input
+                className="form-input"
+                name="expected_delivery_place"
+                value={form.expected_delivery_place}
+                onChange={handleChange}
+                required
+                disabled={readOnly}
+              />
+            </div>
+          </div>
 
-      {!readOnly && <button type="submit">Save & Continue</button>}
-    </form>
+          {!readOnly && (
+            <div className="form-actions">
+              <button type="submit" className="btn">
+                Save & Continue
+              </button>
+            </div>
+          )}
+        </form>
+      </div>
+    </section>
   );
 };
 
