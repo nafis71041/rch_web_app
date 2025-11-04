@@ -4,7 +4,6 @@ import DashboardPage from './pages/dashboard_page/dashboardPage';
 import ChangePasswordPage from './pages/change_password_page/changePasswordPage';
 import ProtectedRoute from './components/protectedRoute';
 import NotFoundPage from './pages/not_found_page/NotFoundPage';
-import RegisterPage from './pages/register/RegisterPage';
 import ECPage from './pages/ec_page/ECPage';
 import PWSearchPage from './pages/pw_page/PWSearchPage';
 import PWPage from './pages/pw_page/PWPage';
@@ -28,7 +27,7 @@ function App() {
         </Route>
 
         <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
-          <Route path="/register" element={<RegisterPage />} />
+          {/* <Route path="/register" element={<RegisterPage />} /> */}
         </Route>
 
         <Route path="*" element={<NotFoundPage />} />
